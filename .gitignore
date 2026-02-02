@@ -10,3 +10,8 @@ frontend/dist/
 
 # OS
 .DS_Store
+
+# Frontend build/cache
+frontend/.angular/
+frontend/node_modules/
+frontend/dist/
