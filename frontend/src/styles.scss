@@ -1,0 +1,22 @@
+:root {
+  --ink-900: #0f203f;
+  --ink-700: #29436d;
+  --line: #d5e0f3;
+  --paper: #ffffff;
+  --brand: #1a4ec9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  color: var(--ink-900);
+  background: #edf2fc;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: 0.2px;
+}

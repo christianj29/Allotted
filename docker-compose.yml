@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: allotted-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: allotted_mdm
+      MYSQL_USER: mdm_user
+      MYSQL_PASSWORD: mdm_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: allotted-backend
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: development
+      SECRET_KEY: change-this-secret
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: allotted_mdm
+      DB_USER: mdm_user
+      DB_PASSWORD: mdm_password
+      CORS_ORIGINS: http://localhost:4200
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+
+volumes:
+  mysql_data:
