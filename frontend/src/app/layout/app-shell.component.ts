@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NgFor],
+  imports: [RouterLink, RouterLinkActive, NgFor, NgIf],
   template: `
     <div class="shell-bg">
       <aside class="sidebar">
@@ -16,9 +16,10 @@ import { NgFor } from '@angular/common';
       </aside>
 
       <main class="content">
+        <ng-content select="[page-top]"></ng-content>
         <header class="page-head">
           <h1>{{ title }}</h1>
-          <div class="logo-chip">
+          <div class="logo-chip" *ngIf="showHeaderLogo">
             <img src="assets/Allotted.png" alt="Allotted logo" />
           </div>
         </header>
@@ -117,6 +118,7 @@ import { NgFor } from '@angular/common';
 })
 export class AppShellComponent {
   @Input() title = '';
+  @Input() showHeaderLogo = true;
   protected readonly nav = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Computers', path: '/computers' },

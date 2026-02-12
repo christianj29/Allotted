@@ -8,6 +8,7 @@ from .routes.dashboard import dashboard_bp
 from .routes.users import users_bp
 from .routes.devices import devices_bp
 from .routes.computers import computers_bp
+from .routes.agents import agents_bp
 from .seed import seed_database
 
 
@@ -27,6 +28,7 @@ def create_app() -> Flask:
     app.register_blueprint(users_bp, url_prefix="/api/users")
     app.register_blueprint(devices_bp, url_prefix="/api/devices")
     app.register_blueprint(computers_bp, url_prefix="/api/computers")
+    app.register_blueprint(agents_bp, url_prefix="/api/agents")
 
     with app.app_context():
         db.create_all()

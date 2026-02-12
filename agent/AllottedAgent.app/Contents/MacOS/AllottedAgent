@@ -1,0 +1,4 @@
+#!/bin/zsh
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+RES_DIR="$SCRIPT_DIR/../Resources"
+exec /usr/bin/python3 "$RES_DIR/installer.py"

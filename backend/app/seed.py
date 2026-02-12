@@ -14,6 +14,7 @@ def seed_database():
         email="cbasuel@email.com",
         password_hash=generate_password_hash("password123"),
         role="admin",
+        department="IT",
     )
 
     ben = User(
@@ -22,6 +23,7 @@ def seed_database():
         email="bbrashaw@email.com",
         password_hash=generate_password_hash("password123"),
         role="manager",
+        department="Operations",
     )
 
     db.session.add_all([admin, ben])

@@ -1,7 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Computer, DashboardSummary, Device, UserRow } from './models';
+import {
+  Computer,
+  CreateComputerRequest,
+  CreateDeviceRequest,
+  CreateUserRequest,
+  CreateUserResponse,
+  DashboardSummary,
+  Device,
+  LoginResponse,
+  UpdateUserRequest,
+  UserRow
+} from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -9,12 +20,20 @@ export class ApiService {
 
   constructor(private readonly http: HttpClient) {}
 
-  login(email: string, password: string): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/auth/login`, { email, password });
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, { email, password });
   }
 
   forgotPassword(email: string, newPassword: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.baseUrl}/auth/forgot-password`, { email, newPassword });
+  }
+
+  checkAccountEligibility(email: string): Observable<{ eligible: boolean; department: string }> {
+    return this.http.post<{ eligible: boolean; department: string }>(`${this.baseUrl}/auth/account-eligibility`, { email });
+  }
+
+  createAccount(email: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/auth/create-account`, { email, password });
   }
 
   getDashboardSummary(): Observable<DashboardSummary> {
@@ -25,8 +44,48 @@ export class ApiService {
     return this.http.get<UserRow[]>(`${this.baseUrl}/users`);
   }
 
+  createUser(payload: CreateUserRequest): Observable<CreateUserResponse> {
+    return this.http.post<CreateUserResponse>(`${this.baseUrl}/users`, payload);
+  }
+
+  createComputer(payload: CreateComputerRequest): Observable<Computer> {
+    return this.http.post<Computer>(`${this.baseUrl}/computers`, payload);
+  }
+
+  updateComputer(id: number, payload: CreateComputerRequest): Observable<Computer> {
+    return this.http.put<Computer>(`${this.baseUrl}/computers/${id}`, payload);
+  }
+
+  deleteComputer(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/computers/${id}`);
+  }
+
+  createDevice(payload: CreateDeviceRequest): Observable<Device> {
+    return this.http.post<Device>(`${this.baseUrl}/devices`, payload);
+  }
+
+  updateDevice(id: number, payload: CreateDeviceRequest): Observable<Device> {
+    return this.http.put<Device>(`${this.baseUrl}/devices/${id}`, payload);
+  }
+
+  deleteDevice(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/devices/${id}`);
+  }
+
+  createAgentCommand(agentId: string, payload: { type: string; payload?: Record<string, unknown> }): Observable<unknown> {
+    return this.http.post(`${this.baseUrl}/agents/${agentId}/commands`, payload);
+  }
+
   getUser(id: number): Observable<UserRow & { devices: Device[]; computers: Computer[] }> {
     return this.http.get<UserRow & { devices: Device[]; computers: Computer[] }>(`${this.baseUrl}/users/${id}`);
+  }
+
+  updateUser(id: number, payload: UpdateUserRequest): Observable<UserRow> {
+    return this.http.put<UserRow>(`${this.baseUrl}/users/${id}`, payload);
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/users/${id}`);
   }
 
   getDevices(): Observable<Device[]> {

@@ -8,6 +8,11 @@ export const routes: Routes = [
       import('./pages/login/login-page.component').then((m) => m.LoginPageComponent)
   },
   {
+    path: 'create-account',
+    loadComponent: () =>
+      import('./pages/login/create-account-page.component').then((m) => m.CreateAccountPageComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('./pages/dashboard/dashboard-page.component').then((m) => m.DashboardPageComponent)
@@ -16,6 +21,11 @@ export const routes: Routes = [
     path: 'users',
     loadComponent: () =>
       import('./pages/users/users-page.component').then((m) => m.UsersPageComponent)
+  },
+  {
+    path: 'users/new',
+    loadComponent: () =>
+      import('./pages/users/user-create-page.component').then((m) => m.UserCreatePageComponent)
   },
   {
     path: 'users/:id',
@@ -28,6 +38,11 @@ export const routes: Routes = [
       import('./pages/devices/devices-page.component').then((m) => m.DevicesPageComponent)
   },
   {
+    path: 'devices/new',
+    loadComponent: () =>
+      import('./pages/devices/device-create-page.component').then((m) => m.DeviceCreatePageComponent)
+  },
+  {
     path: 'devices/:id',
     loadComponent: () =>
       import('./pages/device-detail/device-detail-page.component').then((m) => m.DeviceDetailPageComponent)
@@ -36,6 +51,11 @@ export const routes: Routes = [
     path: 'computers',
     loadComponent: () =>
       import('./pages/computers/computers-page.component').then((m) => m.ComputersPageComponent)
+  },
+  {
+    path: 'computers/new',
+    loadComponent: () =>
+      import('./pages/computers/computer-create-page.component').then((m) => m.ComputerCreatePageComponent)
   },
   {
     path: 'computers/:id',

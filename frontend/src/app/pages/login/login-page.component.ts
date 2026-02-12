@@ -1,28 +1,32 @@
 import { Component } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../shared/api.service';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [ReactiveFormsModule, NgIf, RouterLink],
   template: `
     <div class="login-bg">
       <div class="card">
         <div class="logo-wrap">
           <img src="assets/Allotted_Login.png" alt="Allotted logo" />
         </div>
-        <h1>{{ showForgotPassword ? 'Forgot Password' : 'Login' }}</h1>
+        <h1 *ngIf="showForgotPassword">Forgot Password</h1>
+        <div *ngIf="!showForgotPassword && !showLoginForm" class="cta-stack">
+          <button type="button" class="primary" (click)="showLoginForm = true">Login</button>
+          <a class="secondary" routerLink="/create-account">Create Account</a>
+        </div>
 
-        <form *ngIf="!showForgotPassword" [formGroup]="form" (ngSubmit)="submit()">
+        <form *ngIf="!showForgotPassword && showLoginForm" [formGroup]="form" (ngSubmit)="submit()">
           <input type="email" formControlName="email" placeholder="email" />
           <input type="password" formControlName="password" placeholder="password" />
           <button type="submit">Continue</button>
         </form>
 
-        <button *ngIf="!showForgotPassword" type="button" class="link" (click)="showForgotPassword = true">
+        <button *ngIf="!showForgotPassword && showLoginForm" type="button" class="link" (click)="showForgotPassword = true">
           Forgot password?
         </button>
 
@@ -77,6 +81,18 @@ import { ApiService } from '../../shared/api.service';
         border: 1px solid #c9d6ef;
         padding: 0 12px;
       }
+      .cta-stack {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .primary {
+        border: 0;
+        background: #1a4ec9;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
       button {
         border: 0;
         background: #1a4ec9;
@@ -93,6 +109,17 @@ import { ApiService } from '../../shared/api.service';
         font-weight: 600;
         cursor: pointer;
         text-align: left;
+      }
+      .secondary {
+        display: inline-block;
+        margin: 0;
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid #c9d6ef;
+        color: #1a4ec9;
+        font-weight: 700;
+        text-decoration: none;
+        text-align: center;
       }
       .message {
         margin-top: 12px;
@@ -114,6 +141,7 @@ export class LoginPageComponent {
     confirmPassword: ['', Validators.required]
   });
   protected showForgotPassword = false;
+  protected showLoginForm = false;
   protected errorMessage = '';
   protected successMessage = '';
 
@@ -129,7 +157,11 @@ export class LoginPageComponent {
     if (this.form.invalid) return;
     const { email, password } = this.form.getRawValue();
     this.api.login(email!, password!).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: (response) => {
+        localStorage.setItem('authUser', JSON.stringify(response.user));
+        localStorage.setItem('authToken', response.token);
+        this.router.navigate(['/dashboard']);
+      },
       error: () => {
         this.errorMessage = 'Login failed. Check your email and password.';
       }
