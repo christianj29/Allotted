@@ -3,10 +3,12 @@ import { NgIf } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../shared/api.service';
+import { AuthService } from '../../shared/auth.service';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
+  // Inline template keeps this simple flow in one file.
   imports: [ReactiveFormsModule, NgIf, RouterLink],
   template: `
     <div class="login-bg">
@@ -46,112 +48,36 @@ import { ApiService } from '../../shared/api.service';
       </div>
     </div>
   `,
-  styles: [
-    `
-      .login-bg {
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: conic-gradient(from 160deg at 20% 10%, #e8f0ff, #f6f8fd, #e8f0ff);
-        font-family: 'Avenir Next', 'Trebuchet MS', sans-serif;
-      }
-      .card {
-        width: min(420px, 92vw);
-        background: #fff;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(16, 41, 97, 0.18);
-      }
-      .logo-wrap {
-        background: #0a3c96;
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 14px;
-      }
-      .logo-wrap img {
-        width: 100%;
-        height: auto;
-        display: block;
-      }
-      h1 { margin: 0 0 16px; color: #112855; text-align: center; }
-      form { display: grid; gap: 10px; }
-      input, button {
-        height: 42px;
-        border-radius: 10px;
-        border: 1px solid #c9d6ef;
-        padding: 0 12px;
-      }
-      .cta-stack {
-        display: grid;
-        gap: 10px;
-        margin-bottom: 12px;
-      }
-      .primary {
-        border: 0;
-        background: #1a4ec9;
-        color: #fff;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      button {
-        border: 0;
-        background: #1a4ec9;
-        color: #fff;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .link {
-        margin-top: 10px;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        color: #1a4ec9;
-        font-weight: 600;
-        cursor: pointer;
-        text-align: left;
-      }
-      .secondary {
-        display: inline-block;
-        margin: 0;
-        padding: 8px 14px;
-        border-radius: 999px;
-        border: 1px solid #c9d6ef;
-        color: #1a4ec9;
-        font-weight: 700;
-        text-decoration: none;
-        text-align: center;
-      }
-      .message {
-        margin-top: 12px;
-        font-size: 13px;
-      }
-      .message.success { color: #1e7b3a; }
-      .message.error { color: #a12424; }
-    `
-  ]
+  styleUrls: ['./login-page.component.css']
 })
 export class LoginPageComponent {
+  // Primary login form fields and validators.
   protected readonly form = this.fb.group({
     email: ['cbasuel@email.com', [Validators.required, Validators.email]],
     password: ['password123', Validators.required]
   });
+  // Forgot-password form fields and validators.
   protected readonly forgotForm = this.fb.group({
     email: ['cbasuel@email.com', [Validators.required, Validators.email]],
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required]
   });
+  // UI state toggles and messaging.
   protected showForgotPassword = false;
   protected showLoginForm = false;
   protected errorMessage = '';
   protected successMessage = '';
+  protected isAuth0Loading = false;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly api: ApiService,
+    private readonly auth: AuthService,
     private readonly router: Router
   ) {}
 
   submit(): void {
+    // Validate and submit login credentials.
     this.errorMessage = '';
     this.successMessage = '';
     if (this.form.invalid) return;
@@ -160,7 +86,12 @@ export class LoginPageComponent {
       next: (response) => {
         localStorage.setItem('authUser', JSON.stringify(response.user));
         localStorage.setItem('authToken', response.token);
-        this.router.navigate(['/dashboard']);
+        this.isAuth0Loading = true;
+        this.auth.loginWithRedirect().catch(() => {
+          this.isAuth0Loading = false;
+          this.errorMessage = 'Auth0 login failed. Continuing with local session.';
+          this.router.navigate(['/dashboard']);
+        });
       },
       error: () => {
         this.errorMessage = 'Login failed. Check your email and password.';
@@ -169,6 +100,7 @@ export class LoginPageComponent {
   }
 
   updatePassword(): void {
+    // Validate and submit password reset.
     this.errorMessage = '';
     this.successMessage = '';
     if (this.forgotForm.invalid) return;
@@ -192,6 +124,7 @@ export class LoginPageComponent {
   }
 
   cancelForgotPassword(): void {
+    // Return to login UI and clear messages.
     this.showForgotPassword = false;
     this.errorMessage = '';
     this.successMessage = '';

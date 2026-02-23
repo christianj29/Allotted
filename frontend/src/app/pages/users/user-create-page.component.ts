@@ -11,6 +11,7 @@ import { catchError, finalize, of } from 'rxjs';
   selector: 'app-user-create-page',
   standalone: true,
   imports: [AppShellComponent, FormsModule, NgFor, NgIf, RouterLink],
+  // Create-user form with department-driven role selection.
   template: `
     <app-shell title="Add User">
       <section class="panel">
@@ -107,92 +108,10 @@ import { catchError, finalize, of } from 'rxjs';
       </section>
     </app-shell>
   `,
-  styles: [
-    `
-      .panel {
-        background: #fff;
-        border-radius: 14px;
-        border: 1px solid #dbe5f6;
-        padding: 18px;
-      }
-      .panel-header {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-      }
-      .panel-header h2 {
-        margin: 0;
-        font-size: 18px;
-        color: #1f2b45;
-      }
-      .back {
-        color: #1f2b45;
-        font-size: 13px;
-        text-decoration: none;
-        font-weight: 700;
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px 16px;
-      }
-      label {
-        display: grid;
-        gap: 6px;
-        font-size: 12px;
-        color: #42506b;
-        font-weight: 600;
-      }
-      input,
-      select {
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid #d2d9ea;
-        font-size: 14px;
-      }
-      input.invalid,
-      select.invalid {
-        border-color: #c0392b;
-        box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.1);
-      }
-      .field-error {
-        color: #a12424;
-        font-size: 11px;
-      }
-      .full {
-        grid-column: 1 / -1;
-      }
-      .actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      button {
-        border: none;
-        background: #1f2b45;
-        color: #fff;
-        padding: 10px 16px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-      .status { margin-top: 10px; color: #3d4d6d; }
-      .status.error { color: #a12424; }
-      .status.success { color: #1f7a3f; }
-      @media (max-width: 900px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    `
-  ]
+  styleUrls: ['./user-create-page.component.css']
 })
 export class UserCreatePageComponent {
+  // Form data and submission state.
   protected isSaving = false;
   protected formError = '';
   protected formSuccess = '';
@@ -237,6 +156,7 @@ export class UserCreatePageComponent {
   ) {}
 
   protected createUser(): void {
+    // Validate and submit the user creation payload.
     this.formError = '';
     this.formSuccess = '';
     this.fieldErrors = {};
@@ -263,6 +183,7 @@ export class UserCreatePageComponent {
   }
 
   private cleanPayload(): CreateUserRequest | null {
+    // Normalize inputs and collect field-level errors.
     const firstName = this.form.firstName.trim();
     const lastName = this.form.lastName.trim();
     const email = this.form.email.trim();
@@ -284,6 +205,7 @@ export class UserCreatePageComponent {
   }
 
   protected onDepartmentChange(department: string): void {
+    // Refresh role options based on department.
     this.availableRoles = this.rolesByDepartment[department] ?? [];
     this.form.role = '';
     if (this.fieldErrors.role) {

@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AppShellComponent } from '../../layout/app-shell.component';
 import { ApiService } from '../../shared/api.service';
 import { catchError, finalize, of } from 'rxjs';
@@ -10,7 +10,8 @@ import { catchError, finalize, of } from 'rxjs';
 @Component({
   selector: 'app-account-page',
   standalone: true,
-  imports: [AppShellComponent, NgIf, NgFor, RouterLink, ReactiveFormsModule, FormsModule],
+  imports: [AppShellComponent, NgIf, NgFor, ReactiveFormsModule, FormsModule],
+  // Account profile view with edit, password reset, and deactivation.
   template: `
     <app-shell title="Account">
       <div *ngIf="user" class="card">
@@ -148,154 +149,10 @@ import { catchError, finalize, of } from 'rxjs';
       <p class="status error" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</p>
     </app-shell>
   `,
-  styles: [`
-    .card {
-      background: #fff;
-      border: 1px solid #d7e2f4;
-      border-radius: 14px;
-      padding: 18px;
-      display: grid;
-      gap: 10px;
-    }
-    .info-row {
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      align-items: center;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f5;
-      background: #fbfcff;
-    }
-    .label {
-      font-weight: 700;
-      color: #5a667f;
-      text-transform: none;
-    }
-    .value {
-      color: #1f2b45;
-      font-weight: 600;
-    }
-    .value-input {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #d2d9ea;
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f2b45;
-    }
-    .password-toggle {
-      border: none;
-      background: #1f2b45;
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      justify-self: start;
-    }
-    .password-form {
-      display: grid;
-      gap: 10px;
-    }
-    .password-form input,
-    .password-form button {
-      height: 42px;
-      border-radius: 10px;
-      border: 1px solid #c9d6ef;
-      padding: 0 12px;
-    }
-    .password-form input.invalid {
-      border-color: #c0392b;
-      box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.1);
-    }
-    .password-form button {
-      border: 0;
-      background: #1a4ec9;
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .message {
-      margin-top: 12px;
-      font-size: 13px;
-    }
-    .message.success { color: #1e7b3a; }
-    .message.error { color: #a12424; }
-    .password-hint {
-      margin: 0;
-      font-size: 12px;
-      color: #5a667f;
-    }
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 24, 45, 0.35);
-      display: grid;
-      place-items: center;
-      z-index: 1000;
-    }
-    .modal {
-      background: #fff;
-      border-radius: 16px;
-      padding: 22px;
-      min-width: 320px;
-      box-shadow: 0 16px 40px rgba(20, 34, 63, 0.25);
-      text-align: center;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-    .modal-actions .ghost {
-      background: #e9eef8;
-      color: #1f2b45;
-    }
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-      justify-content: flex-end;
-    }
-    .actions button {
-      border: none;
-      background: #1f2b45;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .actions button.ghost {
-      background: #e9eef8;
-      color: #1f2b45;
-    }
-    .actions button.danger {
-      background: #912d2d;
-    }
-    .actions button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .status {
-      margin-top: 12px;
-      color: #3d4d6d;
-      font-size: 14px;
-    }
-    .status.error {
-      color: #a12424;
-    }
-    @media (max-width: 720px) {
-      .info-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
-      }
-    }
-  `]
+  styleUrls: ['./account-page.component.css']
 })
 export class AccountPageComponent implements OnInit {
+  // Account data and UI state.
   protected user?: any;
   protected primaryDevice?: { name: string; model: string; serialNumber: string };
   protected isLoading = true;
@@ -356,6 +213,7 @@ export class AccountPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load the logged-in user's account details.
     let userId: number | undefined;
     try {
       const rawUser = localStorage.getItem('authUser');
@@ -394,16 +252,19 @@ export class AccountPageComponent implements OnInit {
   }
 
   protected startEdit(): void {
+    // Enter edit mode with current values.
     this.syncFormFromUser();
     this.isEditing = true;
   }
 
   protected cancelEdit(): void {
+    // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromUser();
   }
 
   protected saveEdit(): void {
+    // Persist edits to the API.
     if (!this.user) return;
     this.isSaving = true;
     this.api.updateUser(this.user.id, {
@@ -429,6 +290,7 @@ export class AccountPageComponent implements OnInit {
   }
 
   private syncFormFromUser(): void {
+    // Populate the edit form from the loaded user.
     if (!this.user) return;
     this.form = {
       fullName: this.user.fullName || '',
@@ -441,6 +303,7 @@ export class AccountPageComponent implements OnInit {
   }
 
   protected onDepartmentChange(department: string): void {
+    // Update available roles when department changes.
     this.availableRoles = this.rolesByDepartment[department] ?? [];
     if (!this.availableRoles.includes(this.form.role)) {
       this.form.role = '';
@@ -448,14 +311,17 @@ export class AccountPageComponent implements OnInit {
   }
 
   protected promptDeactivate(): void {
+    // Show account deactivation confirmation.
     this.showDeactivateConfirm = true;
   }
 
   protected cancelDeactivate(): void {
+    // Hide deactivation confirmation.
     this.showDeactivateConfirm = false;
   }
 
   protected confirmDeactivate(): void {
+    // Delete the user account and return to login.
     if (!this.user || this.isDeactivating) return;
     this.isDeactivating = true;
     this.api.deleteUser(this.user.id).pipe(
@@ -481,6 +347,7 @@ export class AccountPageComponent implements OnInit {
   }
 
   protected updatePassword(): void {
+    // Validate and submit a password update request.
     this.errorMessage = '';
     this.successMessage = '';
     this.showPasswordError = false;

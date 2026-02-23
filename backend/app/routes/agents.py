@@ -15,6 +15,52 @@ agents_bp = Blueprint("agents", __name__)
 _agent_commands: Dict[str, List[dict]] = {}
 
 
+@agents_bp.post("/register")
+def register_agent():
+    payload = request.get_json(silent=True) or {}
+    agent_id = (payload.get("agentId") or "").strip()
+    name = (payload.get("name") or "").strip()
+    model = (payload.get("model") or "").strip()
+    serial_number = (payload.get("serialNumber") or "").strip()
+    os_version = (payload.get("osVersion") or "").strip() or None
+    model_identifier = (payload.get("modelIdentifier") or "").strip() or None
+    processor_type = (payload.get("processorType") or "").strip() or None
+    architecture_type = (payload.get("architectureType") or "").strip() or None
+    cache_size = (payload.get("cacheSize") or "").strip() or None
+
+    if not agent_id or not serial_number or not name or not model:
+        return jsonify({"message": "Missing required fields."}), 400
+
+    computer = Computer.query.filter_by(serial_number=serial_number).first()
+    if computer:
+        computer.name = name
+        computer.model = model
+        computer.os_version = os_version
+        computer.model_identifier = model_identifier
+        computer.processor_type = processor_type
+        computer.architecture_type = architecture_type
+        computer.cache_size = cache_size
+        computer.agent_id = agent_id
+        db.session.commit()
+        return jsonify(_to_dict(computer)), 200
+
+    computer = Computer(
+        name=name,
+        model=model,
+        os_version=os_version,
+        serial_number=serial_number,
+        model_identifier=model_identifier,
+        processor_type=processor_type,
+        architecture_type=architecture_type,
+        cache_size=cache_size,
+        compliant=False,
+        agent_id=agent_id,
+    )
+    db.session.add(computer)
+    db.session.commit()
+    return jsonify(_to_dict(computer)), 201
+
+
 @agents_bp.post("/<agent_id>/commands")
 def create_command(agent_id: str):
     payload = request.get_json(silent=True) or {}

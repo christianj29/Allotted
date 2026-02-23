@@ -9,6 +9,7 @@ import { catchError, finalize, of } from 'rxjs';
   selector: 'app-create-account-page',
   standalone: true,
   imports: [FormsModule, NgIf, RouterLink],
+  // Inline template for the two-step account creation flow.
   template: `
     <div class="login-bg">
       <div class="card">
@@ -71,98 +72,10 @@ import { catchError, finalize, of } from 'rxjs';
       </div>
     </div>
   `,
-  styles: [
-    `
-      .login-bg {
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: conic-gradient(from 160deg at 20% 10%, #e8f0ff, #f6f8fd, #e8f0ff);
-        font-family: 'Avenir Next', 'Trebuchet MS', sans-serif;
-      }
-      .card {
-        width: min(520px, 92vw);
-        background: #fff;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(16, 41, 97, 0.18);
-      }
-      .logo-wrap {
-        background: #0a3c96;
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 14px;
-      }
-      .logo-wrap img {
-        width: 100%;
-        height: auto;
-        display: block;
-      }
-      h1 { margin: 0 0 16px; color: #112855; text-align: center; }
-      .form { display: grid; gap: 12px; }
-      label { display: grid; gap: 6px; font-size: 12px; color: #42506b; font-weight: 600; }
-      .email-label {
-        font-size: 13px;
-        font-weight: 700;
-      }
-      input, button {
-        height: 42px;
-        border-radius: 10px;
-        border: 1px solid #c9d6ef;
-        padding: 0 12px;
-        font-size: 14px;
-      }
-      .note {
-        margin: 0;
-        font-size: 12px;
-        color: #51628a;
-      }
-      .actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .spinner {
-        width: 14px;
-        height: 14px;
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        border-top-color: #fff;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-        animation: spin 0.8s linear infinite;
-      }
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      .requirements {
-        font-size: 12px;
-        font-weight: 400;
-        color: #5b6a8a;
-      }
-      .primary {
-        border: 0;
-        background: #1a4ec9;
-        color: #fff;
-        font-weight: 700;
-        cursor: pointer;
-        width: 100%;
-      }
-      .primary:disabled { opacity: 0.7; cursor: not-allowed; }
-      .link {
-        margin-top: 10px;
-        display: inline-block;
-        color: #1a4ec9;
-        font-weight: 600;
-        text-decoration: none;
-      }
-      .message { margin-top: 12px; font-size: 13px; }
-      .message.success { color: #1e7b3a; }
-      .message.error { color: #a12424; }
-    `
-  ]
+  styleUrls: ['./create-account-page.component.css']
 })
 export class CreateAccountPageComponent {
+  // Local UI state for the account creation flow.
   protected isSaving = false;
   protected isChecking = false;
   protected errorMessage = '';
@@ -179,6 +92,7 @@ export class CreateAccountPageComponent {
   ) {}
 
   protected checkEligibility(): void {
+    // Verify whether the email can create an account.
     this.errorMessage = '';
     this.eligibilityMessage = '';
     this.isEligible = false;
@@ -205,6 +119,7 @@ export class CreateAccountPageComponent {
   }
 
   protected submit(): void {
+    // Create the account after eligibility and password checks.
     this.errorMessage = '';
     this.successMessage = '';
     if (!this.email || !this.password || !this.confirmPassword) {

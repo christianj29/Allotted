@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppShellComponent } from '../../layout/app-shell.component';
 import { ApiService } from '../../shared/api.service';
 import { CreateDeviceRequest, Device, UserRow } from '../../shared/models';
@@ -10,7 +10,8 @@ import { catchError, finalize, of } from 'rxjs';
 @Component({
   selector: 'app-device-detail-page',
   standalone: true,
-  imports: [AppShellComponent, NgIf, NgFor, RouterLink, FormsModule],
+  imports: [AppShellComponent, NgIf, NgFor, FormsModule],
+  // Device detail view with edit and delete actions.
   template: `
     <app-shell title="Device Info">
       <div *ngIf="device" class="card">
@@ -107,120 +108,10 @@ import { catchError, finalize, of } from 'rxjs';
       </div>
     </app-shell>
   `,
-  styles: [`
-    .card {
-      background: #fff;
-      border: 1px solid #d7e2f4;
-      border-radius: 14px;
-      padding: 18px;
-      display: grid;
-      gap: 10px;
-    }
-    .info-row {
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      align-items: center;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f5;
-      background: #fbfcff;
-    }
-    .label {
-      font-weight: 700;
-      color: #5a667f;
-      text-transform: none;
-    }
-    .value {
-      color: #1f2b45;
-      font-weight: 600;
-    }
-    .value-input {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #d2d9ea;
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f2b45;
-    }
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-      justify-content: flex-end;
-    }
-    .actions button {
-      border: none;
-      background: #1f2b45;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .actions button.ghost {
-      background: #e9eef8;
-      color: #1f2b45;
-    }
-    .actions button.danger {
-      background: #912d2d;
-    }
-    .actions button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .status {
-      margin-top: 12px;
-      color: #3d4d6d;
-      font-size: 14px;
-    }
-    .status.error {
-      color: #a12424;
-    }
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 24, 45, 0.35);
-      display: grid;
-      place-items: center;
-      z-index: 1000;
-    }
-    .modal {
-      background: #fff;
-      border-radius: 16px;
-      padding: 22px;
-      min-width: 320px;
-      box-shadow: 0 16px 40px rgba(20, 34, 63, 0.25);
-      text-align: center;
-    }
-    .modal p {
-      margin: 0 0 16px;
-      font-weight: 600;
-      color: #1f2b45;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-    .modal-actions .danger {
-      background: #912d2d;
-      color: #fff;
-    }
-    .modal-actions .ghost {
-      background: #e9eef8;
-      color: #1f2b45;
-    }
-    @media (max-width: 720px) {
-      .info-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
-      }
-    }
-  `]
+  styleUrls: ['./device-detail-page.component.css']
 })
 export class DeviceDetailPageComponent implements OnInit {
+  // Device data and UI state.
   protected device?: Device;
   protected users: UserRow[] = [];
   protected isLoading = true;
@@ -250,6 +141,7 @@ export class DeviceDetailPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load the device and lookup users for assignment.
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.isLoading = true;
     this.errorMessage = '';
@@ -274,16 +166,19 @@ export class DeviceDetailPageComponent implements OnInit {
   }
 
   protected startEdit(): void {
+    // Enter edit mode with current values.
     this.syncFormFromDevice();
     this.isEditing = true;
   }
 
   protected cancelEdit(): void {
+    // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromDevice();
   }
 
   protected saveEdit(): void {
+    // Persist edits to the API.
     if (!this.device) return;
     this.isSaving = true;
     this.api.updateDevice(this.device.id, {
@@ -308,14 +203,17 @@ export class DeviceDetailPageComponent implements OnInit {
   }
 
   protected promptDelete(): void {
+    // Show delete confirmation modal.
     this.showDeleteConfirm = true;
   }
 
   protected cancelDelete(): void {
+    // Hide delete confirmation modal.
     this.showDeleteConfirm = false;
   }
 
   protected confirmDelete(): void {
+    // Delete the device and return to the list.
     if (!this.device || this.isDeleting) return;
     this.isDeleting = true;
     this.api.deleteDevice(this.device.id).pipe(
@@ -339,6 +237,7 @@ export class DeviceDetailPageComponent implements OnInit {
   }
 
   private syncFormFromDevice(): void {
+    // Populate the edit form from the loaded device.
     if (!this.device) return;
     this.form = {
       name: this.device.name || '',
@@ -356,6 +255,7 @@ export class DeviceDetailPageComponent implements OnInit {
   }
 
   protected onModelChange(model: string): void {
+    // Autofill non-editable fields based on the selected model.
     const details = this.modelDetails[model];
     if (!details) {
       this.form.udid = '';

@@ -5,8 +5,7 @@ This is a lightweight macOS agent for demo purposes. It polls the backend for co
 ## Install
 
 1. Open `agent/AllottedAgent.app` and click **Install Agent**.
-2. Enter the **Agent ID** (use the computer serial number shown in the app).
-3. Confirm the **Server URL** (`http://localhost:5000/api` for local dev).
+2. Confirm the **Server URL** (`http://localhost:5000/api` for local dev).
 
 This installs:
 - `~/Library/Application Support/AllottedAgent/agent.py`
@@ -14,6 +13,9 @@ This installs:
 - `~/Library/LaunchAgents/com.allotted.agent.plist`
 
 The agent will start automatically and poll every 5 seconds.
+
+On first run, the agent registers the computer using the serial number
+and will not create duplicates.
 
 ## Uninstall
 

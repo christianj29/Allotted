@@ -1,11 +1,17 @@
 import { Routes } from '@angular/router';
 
+// Lazy-loaded route map for all top-level pages.
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login-page.component').then((m) => m.LoginPageComponent)
+  },
+  {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('./pages/login/auth-callback-page.component').then((m) => m.AuthCallbackPageComponent)
   },
   {
     path: 'create-account',

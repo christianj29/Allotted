@@ -15,11 +15,13 @@ import {
 } from './models';
 
 @Injectable({ providedIn: 'root' })
+// Central API client for the frontend.
 export class ApiService {
   private readonly baseUrl = 'http://localhost:5000/api';
 
   constructor(private readonly http: HttpClient) {}
 
+  // Auth endpoints.
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, { email, password });
   }
@@ -36,10 +38,12 @@ export class ApiService {
     return this.http.post<{ message: string }>(`${this.baseUrl}/auth/create-account`, { email, password });
   }
 
+  // Dashboard endpoints.
   getDashboardSummary(): Observable<DashboardSummary> {
     return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard/summary`);
   }
 
+  // User endpoints.
   getUsers(): Observable<UserRow[]> {
     return this.http.get<UserRow[]>(`${this.baseUrl}/users`);
   }
@@ -48,6 +52,7 @@ export class ApiService {
     return this.http.post<CreateUserResponse>(`${this.baseUrl}/users`, payload);
   }
 
+  // Computer endpoints.
   createComputer(payload: CreateComputerRequest): Observable<Computer> {
     return this.http.post<Computer>(`${this.baseUrl}/computers`, payload);
   }
@@ -60,6 +65,7 @@ export class ApiService {
     return this.http.delete<void>(`${this.baseUrl}/computers/${id}`);
   }
 
+  // Device endpoints.
   createDevice(payload: CreateDeviceRequest): Observable<Device> {
     return this.http.post<Device>(`${this.baseUrl}/devices`, payload);
   }
@@ -72,6 +78,7 @@ export class ApiService {
     return this.http.delete<void>(`${this.baseUrl}/devices/${id}`);
   }
 
+  // Agent endpoints.
   createAgentCommand(agentId: string, payload: { type: string; payload?: Record<string, unknown> }): Observable<unknown> {
     return this.http.post(`${this.baseUrl}/agents/${agentId}/commands`, payload);
   }

@@ -3,11 +3,17 @@ import os
 import shutil
 import subprocess
 import sys
-import tkinter as tk
-from tkinter import messagebox
+import uuid
 
 
-def _install(agent_id: str, server_url: str):
+def _run_osascript(script: str) -> str:
+    # Execute an AppleScript snippet and return the dialog response text.
+    result = subprocess.run(["/usr/bin/osascript", "-e", script], capture_output=True, text=True)
+    return result.stdout.strip()
+
+
+def _install(server_url: str):
+    # Create the install directory and copy the agent runtime there.
     home = os.path.expanduser("~")
     install_dir = os.path.join(home, "Library", "Application Support", "AllottedAgent")
     os.makedirs(install_dir, exist_ok=True)
@@ -17,14 +23,16 @@ def _install(agent_id: str, server_url: str):
     dest_agent = os.path.join(install_dir, "agent.py")
     shutil.copy(src_agent, dest_agent)
 
+    # Persist a unique agent ID and normalized server URL for the runtime.
     config = {
-        "agent_id": agent_id.strip(),
+        "agent_id": uuid.uuid4().hex,
         "server_url": server_url.strip().rstrip("/"),
     }
     config_path = os.path.join(install_dir, "config.json")
     with open(config_path, "w", encoding="utf-8") as handle:
         json.dump(config, handle, indent=2)
 
+    # Create a LaunchAgent plist to run the agent at login.
     plist = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -48,45 +56,34 @@ def _install(agent_id: str, server_url: str):
     with open(plist_path, "w", encoding="utf-8") as handle:
         handle.write(plist)
 
+    # Load and start the LaunchAgent for the current GUI session.
+    uid = os.getuid()
     try:
-        subprocess.run(["launchctl", "load", "-w", plist_path], check=False)
-    except Exception:
-        pass
+        subprocess.run(["/bin/launchctl", "bootout", f"gui/{uid}", plist_path], check=False)
+        subprocess.run(["/bin/launchctl", "bootstrap", f"gui/{uid}", plist_path], check=True)
+        subprocess.run(["/bin/launchctl", "enable", f"gui/{uid}/com.allotted.agent"], check=False)
+        subprocess.run(["/bin/launchctl", "kickstart", "-k", f"gui/{uid}/com.allotted.agent"], check=False)
+    except Exception as exc:
+        _run_osascript(f'display dialog "Launch failed: {exc}" buttons {{"OK"}} default button 1 with title "Allotted Agent"')
 
-    messagebox.showinfo("Allotted Agent", "Installed. The agent will start automatically.")
+    # Confirm installation to the user.
+    _run_osascript('display dialog "Installed. The agent will start automatically." buttons {"OK"} default button 1 with title "Allotted Agent"')
 
 
 def main():
-    root = tk.Tk()
-    root.title("Install Allotted Agent")
-    root.geometry("420x240")
-    root.resizable(False, False)
-
-    tk.Label(root, text="Agent ID (use the computer serial number):").pack(pady=(6, 4))
-    agent_entry = tk.Entry(root, width=46)
-    agent_entry.pack()
-
-    tk.Label(root, text="Server URL (API base):").pack(pady=(12, 4))
-    url_entry = tk.Entry(root, width=46)
-    url_entry.insert(0, "http://localhost:5000/api")
-    url_entry.pack()
-
-    def on_install():
-        agent_id = agent_entry.get().strip()
-        server_url = url_entry.get().strip()
-        if not agent_id or not server_url:
-            messagebox.showerror("Allotted Agent", "Please enter both Agent ID and Server URL.")
-            return
-        try:
-            _install(agent_id, server_url)
-            root.destroy()
-        except Exception as exc:
-            messagebox.showerror("Allotted Agent", f"Install failed: {exc}")
-
-    tk.Button(root, text="Install Agent", command=on_install).pack(pady=18)
-    tk.Label(root, text="You can change these later in config.json.").pack()
-
-    root.mainloop()
+    # Prompt for server URL, then install and start the LaunchAgent.
+    server_url = _run_osascript(
+        'text returned of (display dialog "Server URL (API base):" default answer "http://localhost:5000/api" with title "Install Allotted Agent")'
+    )
+    if not server_url:
+        _run_osascript('display dialog "Please enter the Server URL." buttons {"OK"} default button 1 with title "Allotted Agent"')
+        return 1
+    try:
+        _install(server_url)
+    except Exception as exc:
+        _run_osascript(f'display dialog "Install failed: {exc}" buttons {{"OK"}} default button 1 with title "Allotted Agent"')
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

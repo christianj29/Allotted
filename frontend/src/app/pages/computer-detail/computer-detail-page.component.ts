@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppShellComponent } from '../../layout/app-shell.component';
 import { ApiService } from '../../shared/api.service';
 import { Computer, CreateComputerRequest, UserRow } from '../../shared/models';
@@ -10,7 +10,8 @@ import { catchError, finalize, of } from 'rxjs';
 @Component({
   selector: 'app-computer-detail-page',
   standalone: true,
-  imports: [AppShellComponent, NgIf, NgFor, RouterLink, FormsModule],
+  imports: [AppShellComponent, NgIf, NgFor, FormsModule],
+  // Computer detail view with edit/delete and patch actions.
   template: `
     <app-shell title="Computer Info">
       <div *ngIf="computer" class="card">
@@ -101,7 +102,7 @@ import { catchError, finalize, of } from 'rxjs';
           <button *ngIf="!isEditing" type="button" class="danger" (click)="promptDelete()">Delete</button>
         </div>
         <div class="patch-block" *ngIf="!isEditing">
-          <button type="button" class="patch" (click)="startPatch()" [disabled]="isPatching || !computer?.serialNumber">
+          <button type="button" class="patch" (click)="startPatch()" [disabled]="isPatching || !computer.serialNumber">
             Patch this computer
           </button>
           <div *ngIf="isPatching" class="patch-status">
@@ -131,159 +132,10 @@ import { catchError, finalize, of } from 'rxjs';
       </div>
     </app-shell>
   `,
-  styles: [`
-    .card {
-      background: #fff;
-      border: 1px solid #d7e2f4;
-      border-radius: 14px;
-      padding: 18px;
-      display: grid;
-      gap: 10px;
-    }
-    .info-row {
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      align-items: center;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f5;
-      background: #fbfcff;
-    }
-    .label {
-      font-weight: 700;
-      color: #5a667f;
-      text-transform: none;
-    }
-    .value {
-      color: #1f2b45;
-      font-weight: 600;
-    }
-    .value-input {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #d2d9ea;
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f2b45;
-    }
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-      justify-content: flex-end;
-    }
-    .actions button {
-      border: none;
-      background: #1f2b45;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .actions button.ghost {
-      background: #e9eef8;
-      color: #1f2b45;
-    }
-    .actions button.danger {
-      background: #912d2d;
-    }
-    .actions button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .patch-block {
-      margin-top: 6px;
-      display: grid;
-      gap: 10px;
-    }
-    .patch {
-      border: none;
-      background: #0f3d8f;
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      justify-self: start;
-    }
-    .patch:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .patch-status p {
-      margin: 0 0 8px;
-      color: #1f2b45;
-      font-weight: 600;
-    }
-    .progress {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: #e6edf9;
-      overflow: hidden;
-    }
-    .progress .bar {
-      height: 100%;
-      background: #1a4ec9;
-      transition: width 250ms ease;
-    }
-    .status.success {
-      color: #1f7a3f;
-    }
-    .status {
-      margin-top: 12px;
-      color: #3d4d6d;
-      font-size: 14px;
-    }
-    .status.error {
-      color: #a12424;
-    }
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 24, 45, 0.35);
-      display: grid;
-      place-items: center;
-      z-index: 1000;
-    }
-    .modal {
-      background: #fff;
-      border-radius: 16px;
-      padding: 22px;
-      min-width: 320px;
-      box-shadow: 0 16px 40px rgba(20, 34, 63, 0.25);
-      text-align: center;
-    }
-    .modal p {
-      margin: 0 0 16px;
-      font-weight: 600;
-      color: #1f2b45;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-    .modal-actions .danger {
-      background: #912d2d;
-      color: #fff;
-    }
-    .modal-actions .ghost {
-      background: #e9eef8;
-      color: #1f2b45;
-    }
-    @media (max-width: 720px) {
-      .info-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
-      }
-    }
-  `]
+  styleUrls: ['./computer-detail-page.component.css']
 })
 export class ComputerDetailPageComponent implements OnInit {
+  // Computer data, patch state, and UI flags.
   protected computer?: Computer;
   protected users: UserRow[] = [];
   protected isLoading = true;
@@ -316,6 +168,7 @@ export class ComputerDetailPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load the computer and lookup users for assignment.
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.isLoading = true;
     this.errorMessage = '';
@@ -340,8 +193,9 @@ export class ComputerDetailPageComponent implements OnInit {
   }
 
   protected startPatch(): void {
+    // Send a patch command to the agent and begin progress UI.
     if (!this.computer || this.isPatching) return;
-    const agentId = this.computer.serialNumber;
+    const agentId = this.computer.agentId || this.computer.serialNumber;
     if (!agentId) {
       this.errorMessage = 'Missing serial number for agent routing.';
       return;
@@ -354,7 +208,7 @@ export class ComputerDetailPageComponent implements OnInit {
       type: 'patch',
       payload: {
         computerId: this.computer.id,
-        message: 'Your Computer is currently updating'
+        message: 'An admin is patching this computer.\nPlease save your work.'
       }
     }).pipe(
       catchError(() => {
@@ -368,6 +222,7 @@ export class ComputerDetailPageComponent implements OnInit {
   }
 
   private animatePatchProgress(): void {
+    // Simulate incremental progress until the compliance check completes.
     const interval = setInterval(() => {
       if (!this.isPatching) {
         clearInterval(interval);
@@ -379,6 +234,7 @@ export class ComputerDetailPageComponent implements OnInit {
   }
 
   private pollCompliance(): void {
+    // Poll the computer endpoint until compliance flips or attempts expire.
     if (!this.computer) return;
     const id = this.computer.id;
     let attempts = 0;
@@ -402,16 +258,19 @@ export class ComputerDetailPageComponent implements OnInit {
   }
 
   protected startEdit(): void {
+    // Enter edit mode with current values.
     this.syncFormFromComputer();
     this.isEditing = true;
   }
 
   protected cancelEdit(): void {
+    // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromComputer();
   }
 
   protected saveEdit(): void {
+    // Persist edits to the API.
     if (!this.computer) return;
     this.isSaving = true;
     this.api.updateComputer(this.computer.id, {
@@ -436,14 +295,17 @@ export class ComputerDetailPageComponent implements OnInit {
   }
 
   protected promptDelete(): void {
+    // Show delete confirmation modal.
     this.showDeleteConfirm = true;
   }
 
   protected cancelDelete(): void {
+    // Hide delete confirmation modal.
     this.showDeleteConfirm = false;
   }
 
   protected confirmDelete(): void {
+    // Delete the computer and return to the list.
     if (!this.computer || this.isDeleting) return;
     this.isDeleting = true;
     this.api.deleteComputer(this.computer.id).pipe(
@@ -455,18 +317,19 @@ export class ComputerDetailPageComponent implements OnInit {
         this.isDeleting = false;
         this.cdr.detectChanges();
       })
-    ).subscribe((res) => {
-      if (res === null) return;
+    ).subscribe(() => {
       this.showDeleteConfirm = false;
       this.showDeleteSuccess = true;
+      this.cdr.detectChanges();
       setTimeout(() => {
         this.showDeleteSuccess = false;
         this.router.navigate(['/computers']);
-      }, 1200);
+      }, 1500);
     });
   }
 
   private syncFormFromComputer(): void {
+    // Populate the edit form from the loaded computer.
     if (!this.computer) return;
     this.form = {
       name: this.computer.name || '',
@@ -484,6 +347,7 @@ export class ComputerDetailPageComponent implements OnInit {
   }
 
   protected onModelChange(model: string): void {
+    // Autofill detail fields based on the selected model.
     const details = this.modelDetails[model];
     if (!details) {
       this.form.modelIdentifier = '';

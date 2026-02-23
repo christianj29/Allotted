@@ -19,6 +19,7 @@ def _to_dict(computer: Computer):
         "processorType": computer.processor_type,
         "architectureType": computer.architecture_type,
         "cacheSize": computer.cache_size,
+        "agentId": computer.agent_id,
         "user": computer.user.username if computer.user else None,
     }
 

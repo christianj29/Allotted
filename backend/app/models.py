@@ -49,6 +49,7 @@ class Computer(db.Model):
     processor_type = db.Column(db.String(80), nullable=True)
     architecture_type = db.Column(db.String(80), nullable=True)
     cache_size = db.Column(db.String(50), nullable=True)
+    agent_id = db.Column(db.String(120), nullable=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     user = db.relationship("User", back_populates="computers")

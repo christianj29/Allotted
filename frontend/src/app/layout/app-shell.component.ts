@@ -6,6 +6,7 @@ import { NgFor, NgIf } from '@angular/common';
   selector: 'app-shell',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, NgFor, NgIf],
+  // Shared shell layout with sidebar navigation and page header.
   template: `
     <div class="shell-bg">
       <aside class="sidebar">
@@ -27,98 +28,13 @@ import { NgFor, NgIf } from '@angular/common';
       </main>
     </div>
   `,
-  styles: [
-    `
-    .shell-bg {
-      min-height: 100vh;
-      background: radial-gradient(circle at 20% 10%, #d9e4ff, #edf2ff 40%, #f6f8fc 100%);
-      display: grid;
-      grid-template-columns: 230px 1fr;
-      gap: 20px;
-      padding: 20px;
-      font-family: 'Avenir Next', 'Trebuchet MS', sans-serif;
-    }
-    .sidebar {
-      background: linear-gradient(180deg, #0a2f83 0%, #0d2048 100%);
-      border-radius: 16px;
-      padding: 18px;
-      color: #f9fbff;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .brand {
-      margin-bottom: 18px;
-      display: grid;
-      place-items: center;
-    }
-    .brand img {
-      width: 100%;
-      max-width: 170px;
-      height: auto;
-      display: block;
-    }
-    .sidebar a {
-      color: #d8e6ff;
-      text-decoration: none;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-weight: 600;
-    }
-    .sidebar a:hover, .sidebar a.active {
-      background: #1d4fcc;
-      color: #fff;
-    }
-    .content {
-      background: #ffffffcc;
-      backdrop-filter: blur(4px);
-      border: 1px solid #dce4f4;
-      border-radius: 18px;
-      padding: 20px;
-    }
-    .page-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 32px;
-      color: #1a2540;
-    }
-    .logo-chip {
-      width: auto;
-      height: auto;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .logo-chip img {
-      width: 140px;
-      height: auto;
-      display: block;
-    }
-    @media (max-width: 900px) {
-      .shell-bg {
-        grid-template-columns: 1fr;
-      }
-      .sidebar {
-        flex-direction: row;
-        align-items: center;
-        overflow-x: auto;
-      }
-      .brand {
-        margin: 0 16px 0 0;
-      }
-    }
-    `
-  ]
+  styleUrls: ['./app-shell.component.css']
 })
 export class AppShellComponent {
+  // Header configuration passed by each page.
   @Input() title = '';
   @Input() showHeaderLogo = true;
+  // Sidebar navigation items.
   protected readonly nav = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Computers', path: '/computers' },

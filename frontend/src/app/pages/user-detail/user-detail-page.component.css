@@ -1,0 +1,124 @@
+/* User detail view styling. */
+.card {
+  background: #fff;
+  border: 1px solid #d7e2f4;
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+.info-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f5;
+  background: #fbfcff;
+}
+.label {
+  font-weight: 700;
+  color: #5a667f;
+  text-transform: none;
+}
+.value {
+  color: #1f2b45;
+  font-weight: 600;
+}
+.value-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d2d9ea;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2b45;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+button {
+  border: none;
+  background: #1f2b45;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button.ghost {
+  background: #e9eef8;
+  color: #1f2b45;
+}
+button.danger {
+  background: #912d2d;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 24, 45, 0.35);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  min-width: 320px;
+  box-shadow: 0 16px 40px rgba(20, 34, 63, 0.25);
+  text-align: center;
+}
+.modal p {
+  margin: 0 0 16px;
+  font-weight: 600;
+  color: #1f2b45;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.modal-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.modal-actions .danger {
+  background: #912d2d;
+  color: #fff;
+}
+.modal-actions .ghost {
+  background: #e9eef8;
+  color: #1f2b45;
+}
+.back {
+  margin-left: auto;
+  color: #1f2b45;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 700;
+}
+.status {
+  margin-top: 12px;
+  color: #3d4d6d;
+  font-size: 14px;
+}
+.status.error {
+  color: #a12424;
+}
+@media (max-width: 720px) {
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}

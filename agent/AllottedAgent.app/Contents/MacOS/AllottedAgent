@@ -1,4 +1,6 @@
 #!/bin/zsh
+# Resolve the app bundle's Resources directory relative to this launcher.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 RES_DIR="$SCRIPT_DIR/../Resources"
+# Run the installer script using the system Python.
 exec /usr/bin/python3 "$RES_DIR/installer.py"

@@ -10,6 +10,7 @@ import { catchError, finalize, forkJoin, of, timeout } from 'rxjs';
   selector: 'app-users-page',
   standalone: true,
   imports: [AppShellComponent, NgFor, NgIf, RouterLink],
+  // List and bulk-delete users.
   template: `
     <app-shell title="Users">
       <table>
@@ -66,93 +67,10 @@ import { catchError, finalize, forkJoin, of, timeout } from 'rxjs';
       </div>
     </app-shell>
   `,
-  styles: [
-    `
-      table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 14px; overflow: hidden; }
-      th, td { text-align: left; padding: 14px; border-bottom: 1px solid #dbe5f6; }
-      tr { cursor: pointer; }
-      tr:hover { background: #f2f7ff; }
-      .checkbox-cell { width: 44px; }
-      .status { margin-top: 10px; color: #3d4d6d; }
-      .status.error { color: #a12424; }
-      .fab-stack {
-        position: fixed;
-        right: 28px;
-        bottom: 28px;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      .fab {
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        background: #1f2b45;
-        color: #fff;
-        display: grid;
-        place-items: center;
-        font-size: 32px;
-        text-decoration: none;
-        box-shadow: 0 12px 24px rgba(20, 34, 63, 0.2);
-        border: none;
-        cursor: pointer;
-      }
-      .fab.danger {
-        background: #912d2d;
-        font-size: 22px;
-      }
-      .fab:hover {
-        transform: translateY(-2px);
-      }
-      .fab:focus-visible {
-        outline: 3px solid #1f2b45;
-        outline-offset: 3px;
-      }
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 24, 45, 0.35);
-        display: grid;
-        place-items: center;
-        z-index: 1000;
-      }
-      .modal {
-        background: #fff;
-        border-radius: 16px;
-        padding: 22px;
-        min-width: 320px;
-        box-shadow: 0 16px 40px rgba(20, 34, 63, 0.25);
-        text-align: center;
-      }
-      .modal p {
-        margin: 0 0 16px;
-        font-weight: 600;
-        color: #1f2b45;
-      }
-      .modal-actions {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-      }
-      .modal-actions button {
-        border: none;
-        border-radius: 10px;
-        padding: 10px 16px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .modal-actions .danger {
-        background: #912d2d;
-        color: #fff;
-      }
-      .modal-actions .ghost {
-        background: #e9eef8;
-        color: #1f2b45;
-      }
-    `
-  ]
+  styleUrls: ['./users-page.component.css']
 })
 export class UsersPageComponent implements OnInit {
+  // Table data and UI state.
   protected users: UserRow[] = [];
   protected isLoading = true;
   protected errorMessage = '';
@@ -168,6 +86,7 @@ export class UsersPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load users on entry and surface errors.
     this.isLoading = true;
     this.errorMessage = '';
     this.api.getUsers().pipe(
@@ -186,6 +105,7 @@ export class UsersPageComponent implements OnInit {
   }
 
   protected toggleSelection(userId: number, event: Event): void {
+    // Maintain the set of selected users for deletion.
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
       this.selectedUserIds.add(userId);
@@ -195,6 +115,7 @@ export class UsersPageComponent implements OnInit {
   }
 
   protected handleDeleteAction(): void {
+    // Toggle delete mode or open confirmation.
     if (this.isDeleting) return;
     if (!this.isDeleteMode) {
       this.isDeleteMode = true;
@@ -210,10 +131,12 @@ export class UsersPageComponent implements OnInit {
   }
 
   protected cancelDelete(): void {
+    // Hide the delete confirmation dialog.
     this.showDeleteConfirm = false;
   }
 
   protected confirmDelete(): void {
+    // Execute bulk deletes and update the table.
     if (this.isDeleting) return;
     this.isDeleting = true;
     this.errorMessage = '';
