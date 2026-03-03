@@ -167,6 +167,7 @@ export class ComputerDetailPageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Load computer details and users on page init.
   ngOnInit(): void {
     // Load the computer and lookup users for assignment.
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -192,6 +193,7 @@ export class ComputerDetailPageComponent implements OnInit {
     });
   }
 
+  // Send a patch command and start progress UI.
   protected startPatch(): void {
     // Send a patch command to the agent and begin progress UI.
     if (!this.computer || this.isPatching) return;
@@ -221,6 +223,7 @@ export class ComputerDetailPageComponent implements OnInit {
     });
   }
 
+  // Animate progress until compliance is updated.
   private animatePatchProgress(): void {
     // Simulate incremental progress until the compliance check completes.
     const interval = setInterval(() => {
@@ -233,6 +236,7 @@ export class ComputerDetailPageComponent implements OnInit {
     }, 600);
   }
 
+  // Poll for compliance status updates after patch.
   private pollCompliance(): void {
     // Poll the computer endpoint until compliance flips or attempts expire.
     if (!this.computer) return;
@@ -257,18 +261,21 @@ export class ComputerDetailPageComponent implements OnInit {
     }, 2000);
   }
 
+  // Enter edit mode with current computer values.
   protected startEdit(): void {
     // Enter edit mode with current values.
     this.syncFormFromComputer();
     this.isEditing = true;
   }
 
+  // Exit edit mode and restore original values.
   protected cancelEdit(): void {
     // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromComputer();
   }
 
+  // Save computer edits to the backend.
   protected saveEdit(): void {
     // Persist edits to the API.
     if (!this.computer) return;
@@ -294,16 +301,19 @@ export class ComputerDetailPageComponent implements OnInit {
     });
   }
 
+  // Show delete confirmation dialog.
   protected promptDelete(): void {
     // Show delete confirmation modal.
     this.showDeleteConfirm = true;
   }
 
+  // Dismiss delete confirmation dialog.
   protected cancelDelete(): void {
     // Hide delete confirmation modal.
     this.showDeleteConfirm = false;
   }
 
+  // Delete the computer and redirect to list.
   protected confirmDelete(): void {
     // Delete the computer and return to the list.
     if (!this.computer || this.isDeleting) return;
@@ -328,6 +338,7 @@ export class ComputerDetailPageComponent implements OnInit {
     });
   }
 
+  // Copy the loaded computer into the edit form.
   private syncFormFromComputer(): void {
     // Populate the edit form from the loaded computer.
     if (!this.computer) return;
@@ -346,6 +357,7 @@ export class ComputerDetailPageComponent implements OnInit {
     this.form.userId = matchedUser?.id ?? null;
   }
 
+  // Auto-fill derived fields when model changes.
   protected onModelChange(model: string): void {
     // Autofill detail fields based on the selected model.
     const details = this.modelDetails[model];

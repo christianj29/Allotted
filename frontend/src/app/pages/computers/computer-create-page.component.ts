@@ -148,6 +148,7 @@ export class ComputerCreatePageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Load users for the assignment dropdown.
   ngOnInit(): void {
     // Preload users for the assignment dropdown.
     this.api.getUsers().pipe(
@@ -158,6 +159,7 @@ export class ComputerCreatePageComponent implements OnInit {
     });
   }
 
+  // Validate the form and create a computer.
   protected createComputer(): void {
     // Validate and submit the computer payload.
     this.formError = '';
@@ -185,6 +187,7 @@ export class ComputerCreatePageComponent implements OnInit {
     });
   }
 
+  // Normalize inputs and return a valid payload or null.
   private cleanPayload(): CreateComputerRequest | null {
     // Normalize inputs and collect field-level errors.
     const name = this.form.name.trim();
@@ -208,6 +211,7 @@ export class ComputerCreatePageComponent implements OnInit {
     };
   }
 
+  // Auto-fill derived fields based on model selection.
   protected onModelChange(model: string): void {
     // Autofill detail fields based on the selected model.
     const details = this.modelDetails[model];

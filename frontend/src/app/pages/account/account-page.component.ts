@@ -217,6 +217,7 @@ export class AccountPageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Load the logged-in user's account details.
   ngOnInit(): void {
     // Load the logged-in user's account details.
     let userId: number | undefined;
@@ -256,18 +257,21 @@ export class AccountPageComponent implements OnInit {
     });
   }
 
+  // Enter edit mode with the current account data.
   protected startEdit(): void {
     // Enter edit mode with current values.
     this.syncFormFromUser();
     this.isEditing = true;
   }
 
+  // Exit edit mode and revert unsaved changes.
   protected cancelEdit(): void {
     // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromUser();
   }
 
+  // Persist profile edits to the backend.
   protected saveEdit(): void {
     // Persist edits to the API.
     if (!this.user) return;
@@ -294,6 +298,7 @@ export class AccountPageComponent implements OnInit {
     });
   }
 
+  // Copy user data into the local edit form.
   private syncFormFromUser(): void {
     // Populate the edit form from the loaded user.
     if (!this.user) return;
@@ -307,6 +312,7 @@ export class AccountPageComponent implements OnInit {
     this.availableRoles = this.rolesByDepartment[this.form.department] ?? [];
   }
 
+  // Update role options when the department changes.
   protected onDepartmentChange(department: string): void {
     // Update available roles when department changes.
     this.availableRoles = this.rolesByDepartment[department] ?? [];
@@ -315,16 +321,19 @@ export class AccountPageComponent implements OnInit {
     }
   }
 
+  // Show the deactivate confirmation modal.
   protected promptDeactivate(): void {
     // Show account deactivation confirmation.
     this.showDeactivateConfirm = true;
   }
 
+  // Hide the deactivate confirmation modal.
   protected cancelDeactivate(): void {
     // Hide deactivation confirmation.
     this.showDeactivateConfirm = false;
   }
 
+  // Deactivate the account and show confirmation.
   protected confirmDeactivate(): void {
     // Delete the user account and return to login.
     if (!this.user || this.isDeactivating) return;
@@ -354,6 +363,7 @@ export class AccountPageComponent implements OnInit {
     });
   }
 
+  // Clear local session data and return to login.
   protected logout(): void {
     // Clear session storage and return to login.
     localStorage.removeItem('sessionUser');
@@ -365,6 +375,7 @@ export class AccountPageComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // Update the account password from the modal form.
   protected updatePassword(): void {
     // Validate and submit a password update request.
     this.errorMessage = '';

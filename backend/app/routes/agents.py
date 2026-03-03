@@ -15,6 +15,7 @@ agents_bp = Blueprint("agents", __name__)
 _agent_commands: Dict[str, List[dict]] = {}
 
 
+# Register or update a computer record for an agent.
 @agents_bp.post("/register")
 def register_agent():
     payload = request.get_json(silent=True) or {}
@@ -63,6 +64,7 @@ def register_agent():
     return jsonify(_to_dict(computer)), 201
 
 
+# Enqueue a new command for an agent.
 @agents_bp.post("/<agent_id>/commands")
 def create_command(agent_id: str):
     payload = request.get_json(silent=True) or {}
@@ -84,6 +86,7 @@ def create_command(agent_id: str):
     return jsonify(command), 201
 
 
+# Dequeue the next pending command for an agent.
 @agents_bp.get("/<agent_id>/commands/next")
 def get_next_command(agent_id: str):
     queue = _agent_commands.get(agent_id, [])
@@ -96,6 +99,7 @@ def get_next_command(agent_id: str):
     return jsonify({"command": command}), 200
 
 
+# Mark a command complete and update compliance if provided.
 @agents_bp.post("/<agent_id>/commands/<command_id>/complete")
 def complete_command(agent_id: str, command_id: str):
     payload = request.get_json(silent=True) or {}

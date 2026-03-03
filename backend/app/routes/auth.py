@@ -14,6 +14,7 @@ auth_bp = Blueprint("auth", __name__)
 _ELIGIBILITY_CACHE_TTL_SECONDS = 60
 _eligibility_cache: dict[str, tuple[float, dict, int]] = {}
 
+# Validate password strength for account creation.
 def _validate_password(password: str) -> bool:
     # Enforce baseline password strength for account creation.
     if len(password) < 8:
@@ -26,10 +27,12 @@ def _validate_password(password: str) -> bool:
         return False
     return True
 
+# Check whether a user belongs to the IT department.
 def _is_it_department(user: User) -> bool:
     # Only IT department users are eligible to create accounts.
     return (user.department or "").strip().lower() == "it"
 
+# Authenticate a user with email/password and return a dev token.
 @auth_bp.post("/login")
 def login():
     payload = request.get_json(silent=True) or {}
@@ -58,6 +61,7 @@ def login():
     )
 
 
+# Authenticate a user via Auth0 email lookup and return a dev token.
 @auth_bp.post("/auth0-login")
 def auth0_login():
     payload = request.get_json(silent=True) or {}
@@ -85,6 +89,7 @@ def auth0_login():
     )
 
 
+# Update a user's password after validating inputs.
 @auth_bp.post("/forgot-password")
 def forgot_password():
     payload = request.get_json(silent=True) or {}
@@ -107,6 +112,7 @@ def forgot_password():
     return jsonify({"message": "Password updated successfully."})
 
 
+# Check if a user is eligible to create an account (cached).
 @auth_bp.post("/account-eligibility")
 def account_eligibility():
     payload = request.get_json(silent=True) or {}
@@ -138,6 +144,7 @@ def account_eligibility():
     return jsonify(payload)
 
 
+# Set a password for an eligible user.
 @auth_bp.post("/create-account")
 def create_account():
     payload = request.get_json(silent=True) or {}

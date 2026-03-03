@@ -140,6 +140,7 @@ export class DeviceDetailPageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Load device details and users on page init.
   ngOnInit(): void {
     // Load the device and lookup users for assignment.
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -165,18 +166,21 @@ export class DeviceDetailPageComponent implements OnInit {
     });
   }
 
+  // Enter edit mode with current device values.
   protected startEdit(): void {
     // Enter edit mode with current values.
     this.syncFormFromDevice();
     this.isEditing = true;
   }
 
+  // Exit edit mode and restore original values.
   protected cancelEdit(): void {
     // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromDevice();
   }
 
+  // Save device edits to the backend.
   protected saveEdit(): void {
     // Persist edits to the API.
     if (!this.device) return;
@@ -202,16 +206,19 @@ export class DeviceDetailPageComponent implements OnInit {
     });
   }
 
+  // Show delete confirmation dialog.
   protected promptDelete(): void {
     // Show delete confirmation modal.
     this.showDeleteConfirm = true;
   }
 
+  // Dismiss delete confirmation dialog.
   protected cancelDelete(): void {
     // Hide delete confirmation modal.
     this.showDeleteConfirm = false;
   }
 
+  // Delete the device and redirect to list.
   protected confirmDelete(): void {
     // Delete the device and return to the list.
     if (!this.device || this.isDeleting) return;
@@ -236,6 +243,7 @@ export class DeviceDetailPageComponent implements OnInit {
     });
   }
 
+  // Copy the loaded device into the edit form.
   private syncFormFromDevice(): void {
     // Populate the edit form from the loaded device.
     if (!this.device) return;
@@ -254,6 +262,7 @@ export class DeviceDetailPageComponent implements OnInit {
     this.form.userId = matchedUser?.id ?? null;
   }
 
+  // Auto-fill derived fields when model changes.
   protected onModelChange(model: string): void {
     // Autofill non-editable fields based on the selected model.
     const details = this.modelDetails[model];

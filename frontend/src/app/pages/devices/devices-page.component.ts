@@ -80,6 +80,7 @@ export class DevicesPageComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  // Fetch devices when the page loads.
   ngOnInit(): void {
     // Load devices on entry and surface errors.
     this.isLoading = true;
@@ -99,6 +100,7 @@ export class DevicesPageComponent implements OnInit {
     });
   }
 
+  // Track which devices are selected for deletion.
   protected toggleSelection(deviceId: number, event: Event): void {
     // Maintain the set of selected devices for deletion.
     const checked = (event.target as HTMLInputElement).checked;
@@ -109,6 +111,7 @@ export class DevicesPageComponent implements OnInit {
     }
   }
 
+  // Toggle delete mode or request confirmation.
   protected handleDeleteAction(): void {
     // Toggle delete mode or open confirmation.
     if (this.isDeleting) return;
@@ -126,11 +129,13 @@ export class DevicesPageComponent implements OnInit {
     this.showDeleteConfirm = true;
   }
 
+  // Dismiss the delete confirmation dialog.
   protected cancelDelete(): void {
     // Hide the delete confirmation dialog.
     this.showDeleteConfirm = false;
   }
 
+  // Delete selected devices and refresh the list.
   protected confirmDelete(): void {
     // Execute bulk deletes and update the table.
     if (this.isDeleting) return;

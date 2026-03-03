@@ -7,6 +7,7 @@ from ..models import Computer, User
 computers_bp = Blueprint("computers", __name__)
 
 
+# Serialize a computer model for API responses.
 def _to_dict(computer: Computer):
     # Align API field names with frontend expectations.
     return {
@@ -25,12 +26,14 @@ def _to_dict(computer: Computer):
     }
 
 
+# Return all computers ordered by newest first.
 @computers_bp.get("")
 def list_computers():
     computers = Computer.query.order_by(Computer.id.desc()).all()
     return jsonify([_to_dict(c) for c in computers])
 
 
+# Create a new computer after validating input.
 @computers_bp.post("")
 def create_computer():
     payload = request.get_json(silent=True) or {}
@@ -75,6 +78,7 @@ def create_computer():
     return jsonify(_to_dict(computer)), 201
 
 
+# Update an existing computer by id.
 @computers_bp.route("/<int:computer_id>", methods=["PUT", "PATCH"])
 def update_computer(computer_id: int):
     computer = Computer.query.get_or_404(computer_id)
@@ -121,6 +125,7 @@ def update_computer(computer_id: int):
     return jsonify(_to_dict(computer)), 200
 
 
+# Delete a computer by id.
 @computers_bp.delete("/<int:computer_id>")
 def delete_computer(computer_id: int):
     computer = Computer.query.get_or_404(computer_id)
@@ -129,6 +134,7 @@ def delete_computer(computer_id: int):
     return "", 204
 
 
+# Fetch a computer by id.
 @computers_bp.get("/<int:computer_id>")
 def get_computer(computer_id: int):
     computer = Computer.query.get_or_404(computer_id)

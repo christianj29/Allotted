@@ -7,6 +7,7 @@ from ..models import Device, User
 devices_bp = Blueprint("devices", __name__)
 
 
+# Serialize a device model for API responses.
 def _to_dict(device: Device):
     # Align API field names with frontend expectations.
     return {
@@ -24,12 +25,14 @@ def _to_dict(device: Device):
     }
 
 
+# Return all devices ordered by newest first.
 @devices_bp.get("")
 def list_devices():
     devices = Device.query.order_by(Device.id.desc()).all()
     return jsonify([_to_dict(d) for d in devices])
 
 
+# Create a new device after validating input.
 @devices_bp.post("")
 def create_device():
     payload = request.get_json(silent=True) or {}
@@ -74,6 +77,7 @@ def create_device():
     return jsonify(_to_dict(device)), 201
 
 
+# Update an existing device by id.
 @devices_bp.route("/<int:device_id>", methods=["PUT", "PATCH"])
 def update_device(device_id: int):
     device = Device.query.get_or_404(device_id)
@@ -119,6 +123,7 @@ def update_device(device_id: int):
     return jsonify(_to_dict(device)), 200
 
 
+# Delete a device by id.
 @devices_bp.delete("/<int:device_id>")
 def delete_device(device_id: int):
     device = Device.query.get_or_404(device_id)
@@ -127,6 +132,7 @@ def delete_device(device_id: int):
     return "", 204
 
 
+# Fetch a device by id.
 @devices_bp.get("/<int:device_id>")
 def get_device(device_id: int):
     device = Device.query.get_or_404(device_id)

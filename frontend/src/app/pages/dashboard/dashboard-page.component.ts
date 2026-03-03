@@ -72,6 +72,7 @@ export class DashboardPageComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  // Load summary data and greeting on page init.
   ngOnInit(): void {
     // Fetch summary with a fallback to direct table counts.
     this.greeting = this.getGreeting();
@@ -92,6 +93,7 @@ export class DashboardPageComponent implements OnInit {
     });
   }
 
+  // Build a summary from list endpoints if summary fails.
   private loadFallbackSummary(): void {
     // Compute counts and compliance if summary endpoint is unavailable.
     forkJoin({
@@ -131,6 +133,7 @@ export class DashboardPageComponent implements OnInit {
     });
   }
 
+  // Compute the pie-slice angle for compliant computers.
   protected computerCompliancePercent(): number {
     // Convert compliant/noncompliant counts into a pie-slice angle.
     if (!this.summary) return 180;
@@ -140,6 +143,7 @@ export class DashboardPageComponent implements OnInit {
     return (compliant / total) * 360;
   }
 
+  // Compute the pie-slice angle for compliant devices.
   protected deviceCompliancePercent(): number {
     // Convert compliant/noncompliant counts into a pie-slice angle.
     if (!this.summary) return 180;
@@ -149,6 +153,7 @@ export class DashboardPageComponent implements OnInit {
     return (compliant / total) * 360;
   }
 
+  // Derive a display name from the stored session user.
   private getWelcomeName(): string {
     // Use the logged-in user to personalize the greeting.
     const rawUser = localStorage.getItem('sessionUser');
@@ -162,12 +167,14 @@ export class DashboardPageComponent implements OnInit {
     }
   }
 
+  // Return a simple time-of-day greeting.
   private getGreeting(): string {
     // Basic time-of-day greeting.
     const hour = new Date().getHours();
     return hour < 12 ? 'Good Morning' : 'Good Afternoon';
   }
 
+  // Normalize a value into a first-name string.
   private toFirstName(value: string): string {
     const trimmed = value.trim();
     if (!trimmed) return '';

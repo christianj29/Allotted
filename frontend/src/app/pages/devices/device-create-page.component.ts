@@ -136,6 +136,7 @@ export class DeviceCreatePageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Load users for the assignment dropdown.
   ngOnInit(): void {
     // Preload users for the assignment dropdown.
     this.api.getUsers().pipe(
@@ -146,6 +147,7 @@ export class DeviceCreatePageComponent implements OnInit {
     });
   }
 
+  // Validate the form and create a device.
   protected createDevice(): void {
     // Validate and submit the device payload.
     this.formError = '';
@@ -173,6 +175,7 @@ export class DeviceCreatePageComponent implements OnInit {
     });
   }
 
+  // Normalize inputs and return a valid payload or null.
   private cleanPayload(): CreateDeviceRequest | null {
     // Normalize inputs and collect field-level errors.
     const name = this.form.name.trim();
@@ -196,6 +199,7 @@ export class DeviceCreatePageComponent implements OnInit {
     };
   }
 
+  // Auto-fill derived fields based on model selection.
   protected onModelChange(model: string): void {
     // Autofill non-editable fields based on the selected model.
     const details = this.modelDetails[model];

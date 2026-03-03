@@ -159,6 +159,7 @@ export class UserDetailPageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Load the user record on page init.
   ngOnInit(): void {
     // Load the user and related device/computer data.
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -183,18 +184,21 @@ export class UserDetailPageComponent implements OnInit {
     });
   }
 
+  // Enter edit mode with current user values.
   protected startEdit(): void {
     // Enter edit mode with current values.
     this.syncFormFromUser();
     this.isEditing = true;
   }
 
+  // Exit edit mode and restore original values.
   protected cancelEdit(): void {
     // Exit edit mode and restore values.
     this.isEditing = false;
     this.syncFormFromUser();
   }
 
+  // Save user edits to the backend.
   protected saveEdit(): void {
     // Persist edits to the API.
     if (!this.user) return;
@@ -221,16 +225,19 @@ export class UserDetailPageComponent implements OnInit {
     });
   }
 
+  // Show delete confirmation dialog.
   protected promptDelete(): void {
     // Show delete confirmation modal.
     this.showDeleteConfirm = true;
   }
 
+  // Dismiss delete confirmation dialog.
   protected cancelDelete(): void {
     // Hide delete confirmation modal.
     this.showDeleteConfirm = false;
   }
 
+  // Delete the user and redirect to list.
   protected confirmDelete(): void {
     // Delete the user and return to the list.
     if (!this.user || this.isDeleting) return;
@@ -255,6 +262,7 @@ export class UserDetailPageComponent implements OnInit {
     });
   }
 
+  // Copy the loaded user into the edit form.
   private syncFormFromUser(): void {
     // Populate the edit form from the loaded user.
     if (!this.user) return;
@@ -268,6 +276,7 @@ export class UserDetailPageComponent implements OnInit {
     this.availableRoles = this.rolesByDepartment[this.form.department] ?? [];
   }
 
+  // Update available roles when department changes.
   protected onDepartmentChange(department: string): void {
     // Update available roles when department changes.
     this.availableRoles = this.rolesByDepartment[department] ?? [];

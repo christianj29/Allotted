@@ -25,6 +25,7 @@ export class AuthCallbackPageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  // Complete Auth0 login and route the user accordingly.
   async ngOnInit(): Promise<void> {
     try {
       await this.auth.handleRedirectCallback();

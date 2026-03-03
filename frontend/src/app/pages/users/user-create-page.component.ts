@@ -155,6 +155,7 @@ export class UserCreatePageComponent {
     private readonly router: Router
   ) {}
 
+  // Validate the form and create a new user.
   protected createUser(): void {
     // Validate and submit the user creation payload.
     this.formError = '';
@@ -182,6 +183,7 @@ export class UserCreatePageComponent {
     });
   }
 
+  // Normalize inputs and return a valid payload or null.
   private cleanPayload(): CreateUserRequest | null {
     // Normalize inputs and collect field-level errors.
     const firstName = this.form.firstName.trim();
@@ -204,6 +206,7 @@ export class UserCreatePageComponent {
     return { firstName, lastName, email, role, department };
   }
 
+  // Update available roles when department changes.
   protected onDepartmentChange(department: string): void {
     // Refresh role options based on department.
     this.availableRoles = this.rolesByDepartment[department] ?? [];

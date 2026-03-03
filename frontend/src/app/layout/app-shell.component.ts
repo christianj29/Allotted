@@ -55,6 +55,7 @@ export class AppShellComponent {
 
   constructor(private readonly router: Router) {}
 
+  // Clear stored session data and return to login.
   protected logout(): void {
     localStorage.removeItem('sessionUser');
     localStorage.removeItem('authToken');

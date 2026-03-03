@@ -6,6 +6,7 @@ from ..models import User, Device, Computer
 dashboard_bp = Blueprint("dashboard", __name__)
 
 
+# Return aggregate counts and compliance totals.
 @dashboard_bp.get("/summary")
 def summary():
     computers = Computer.query.count()

@@ -9,6 +9,7 @@ from ..models import User
 users_bp = Blueprint("users", __name__)
 
 
+# Serialize a user model for API responses.
 def _to_dict(user: User):
     # Surface a single primary device/computer for list views.
     primary_device = user.devices[0] if user.devices else None
@@ -31,12 +32,14 @@ def _to_dict(user: User):
     }
 
 
+# Return all users ordered by newest first.
 @users_bp.get("")
 def list_users():
     users = User.query.order_by(User.id.desc()).all()
     return jsonify([_to_dict(u) for u in users])
 
 
+# Generate a unique username from a first/last name.
 def _build_username(first_name: str, last_name: str) -> str:
     # Build a simple username seed and ensure it is URL-safe.
     base = f"{first_name[:1]}{last_name}".lower()
@@ -53,6 +56,7 @@ def _build_username(first_name: str, last_name: str) -> str:
     return username
 
 
+# Validate password strength for account creation.
 def _validate_password(password: str) -> bool:
     # Enforce baseline password strength for account creation.
     if len(password) < 8:
@@ -66,6 +70,7 @@ def _validate_password(password: str) -> bool:
     return True
 
 
+# Create a new user with a default password.
 @users_bp.post("")
 def create_user():
     payload = request.get_json(silent=True) or {}
@@ -101,6 +106,7 @@ def create_user():
     return jsonify({"user": _to_dict(user)}), 201
 
 
+# Fetch a user by id with related devices/computers.
 @users_bp.get("/<int:user_id>")
 def get_user(user_id: int):
     user = User.query.get_or_404(user_id)
@@ -117,6 +123,7 @@ def get_user(user_id: int):
     return jsonify(payload)
 
 
+# Update a user by id.
 @users_bp.route("/<int:user_id>", methods=["PUT", "PATCH"])
 def update_user(user_id: int):
     user = User.query.get_or_404(user_id)
@@ -146,6 +153,7 @@ def update_user(user_id: int):
     return jsonify(_to_dict(user)), 200
 
 
+# Delete a user by id.
 @users_bp.delete("/<int:user_id>")
 def delete_user(user_id: int):
     user = User.query.get_or_404(user_id)

@@ -147,6 +147,7 @@ export class LoginPageComponent {
     private readonly router: Router
   ) {}
 
+  // Handle login form submission and Auth0 handoff.
   submit(): void {
     // Validate and submit login credentials.
     this.errorMessage = '';
@@ -174,6 +175,7 @@ export class LoginPageComponent {
     });
   }
 
+  // Handle forgot-password submission and UI feedback.
   updatePassword(): void {
     // Validate and submit password reset.
     this.errorMessage = '';
@@ -204,6 +206,7 @@ export class LoginPageComponent {
     });
   }
 
+  // Exit the forgot-password flow and clear messages.
   cancelForgotPassword(): void {
     // Return to login UI and clear messages.
     this.showForgotPassword = false;

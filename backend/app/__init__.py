@@ -9,9 +9,9 @@ from .routes.users import users_bp
 from .routes.devices import devices_bp
 from .routes.computers import computers_bp
 from .routes.agents import agents_bp
-from .seed import seed_database
 
 
+# Build and configure the Flask application.
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -34,7 +34,5 @@ def create_app() -> Flask:
 
     with app.app_context():
         db.create_all()
-        # Seed demo data only for empty dev databases.
-        seed_database()
 
     return app

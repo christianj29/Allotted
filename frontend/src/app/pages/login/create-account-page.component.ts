@@ -97,6 +97,7 @@ export class CreateAccountPageComponent {
     private readonly router: Router
   ) {}
 
+  // Validate the email and check eligibility with caching.
   protected checkEligibility(): void {
     // Step 1: verify whether the email can create an account (IT-only in this demo).
     this.errorMessage = '';
@@ -150,6 +151,7 @@ export class CreateAccountPageComponent {
     });
   }
 
+  // Submit a new account once eligibility and passwords are valid.
   protected submit(): void {
     // Create the account after eligibility and password checks.
     this.errorMessage = '';

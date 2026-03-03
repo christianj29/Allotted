@@ -15,6 +15,7 @@ export class AuthService {
     this.initPromise = this.initClient();
   }
 
+  // Lazily initialize the Auth0 client singleton.
   private async initClient(): Promise<Auth0Client> {
     if (this.client) return this.client;
     const client = await createAuth0Client({
@@ -28,6 +29,7 @@ export class AuthService {
     return client;
   }
 
+  // Start the Auth0 login redirect flow.
   async loginWithRedirect(): Promise<void> {
     const client = await this.initPromise;
     await client.loginWithRedirect({
@@ -37,6 +39,7 @@ export class AuthService {
     });
   }
 
+  // Handle Auth0 redirect callback and persist the session.
   async handleRedirectCallback(): Promise<void> {
     const client = await this.initPromise;
     if (!window.location.search.includes('code=') || !window.location.search.includes('state=')) {
@@ -46,21 +49,25 @@ export class AuthService {
     await this.persistSession();
   }
 
+  // Return whether the current session is authenticated.
   async isAuthenticated(): Promise<boolean> {
     const client = await this.initPromise;
     return client.isAuthenticated();
   }
 
+  // Fetch the Auth0 user profile for the current session.
   async getUser(): Promise<User | undefined> {
     const client = await this.initPromise;
     return client.getUser();
   }
 
+  // Retrieve a silent access token from Auth0.
   async getToken(): Promise<string> {
     const client = await this.initPromise;
     return client.getTokenSilently();
   }
 
+  // Persist Auth0 session details to local storage.
   async persistSession(): Promise<void> {
     const [user, token] = await Promise.all([this.getUser(), this.getToken()]);
     if (user) {
