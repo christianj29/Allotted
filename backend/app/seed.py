@@ -5,9 +5,11 @@ from .models import User, Device, Computer
 
 
 def seed_database():
+    # Avoid duplicating seed data in existing environments.
     if User.query.first():
         return
 
+    # Seed a couple of demo users/devices for local development.
     admin = User(
         username="cbasuel",
         full_name="Christian Basuel",

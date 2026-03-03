@@ -10,6 +10,7 @@ users_bp = Blueprint("users", __name__)
 
 
 def _to_dict(user: User):
+    # Surface a single primary device/computer for list views.
     primary_device = user.devices[0] if user.devices else None
     primary_computer = user.computers[0] if user.computers else None
 
@@ -37,6 +38,7 @@ def list_users():
 
 
 def _build_username(first_name: str, last_name: str) -> str:
+    # Build a simple username seed and ensure it is URL-safe.
     base = f"{first_name[:1]}{last_name}".lower()
     base = re.sub(r"[^a-z0-9]", "", base)
     if not base:
@@ -44,6 +46,7 @@ def _build_username(first_name: str, last_name: str) -> str:
 
     username = base
     counter = 1
+    # Increment suffix until we find a unique username.
     while User.query.filter_by(username=username).first():
         counter += 1
         username = f"{base}{counter}"
@@ -51,6 +54,7 @@ def _build_username(first_name: str, last_name: str) -> str:
 
 
 def _validate_password(password: str) -> bool:
+    # Enforce baseline password strength for account creation.
     if len(password) < 8:
         return False
     if not re.search(r"[A-Z]", password):
@@ -65,6 +69,7 @@ def _validate_password(password: str) -> bool:
 @users_bp.post("")
 def create_user():
     payload = request.get_json(silent=True) or {}
+    # Normalize inputs early to keep validation predictable.
     first_name = (payload.get("firstName") or "").strip()
     last_name = (payload.get("lastName") or "").strip()
     email = (payload.get("email") or "").strip().lower()
@@ -85,6 +90,7 @@ def create_user():
         username=username,
         full_name=f"{first_name} {last_name}",
         email=email,
+        # Seed a temporary password for demo accounts.
         password_hash=generate_password_hash("password123"),
         role=role,
         department=department,
@@ -99,6 +105,7 @@ def create_user():
 def get_user(user_id: int):
     user = User.query.get_or_404(user_id)
     payload = _to_dict(user)
+    # Include related devices/computers for detail views.
     payload["devices"] = [
         {"id": d.id, "name": d.name, "model": d.model, "serialNumber": d.serial_number}
         for d in user.devices

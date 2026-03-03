@@ -85,6 +85,12 @@ export class CreateAccountPageComponent {
   protected confirmPassword = '';
   protected isEligible = false;
   protected eligibilityMessage = '';
+  // Cache the last eligibility lookup to avoid repeat API calls while typing or retrying.
+  private lastEligibilityEmail = '';
+  private lastEligibilityCheckedAt = 0;
+  private lastEligibilityResult: { eligible: boolean; department?: string } | null = null;
+  private lastEligibilityError = '';
+  private readonly eligibilityCacheTtlMs = 30000;
 
   constructor(
     private readonly api: ApiService,
@@ -92,20 +98,42 @@ export class CreateAccountPageComponent {
   ) {}
 
   protected checkEligibility(): void {
-    // Verify whether the email can create an account.
+    // Step 1: verify whether the email can create an account (IT-only in this demo).
     this.errorMessage = '';
     this.eligibilityMessage = '';
     this.isEligible = false;
-    if (!this.email) {
+    const normalizedEmail = this.email.trim().toLowerCase();
+    if (!normalizedEmail) {
       this.errorMessage = 'Please enter your email address.';
       return;
     }
+    const now = Date.now();
+    // Step 2: reuse a recent response to keep the UI snappy.
+    if (
+      this.lastEligibilityEmail === normalizedEmail &&
+      now - this.lastEligibilityCheckedAt < this.eligibilityCacheTtlMs
+    ) {
+      if (this.lastEligibilityResult?.eligible) {
+        this.isEligible = true;
+        this.eligibilityMessage = 'Eligible to create an account.';
+        this.errorMessage = '';
+      } else if (this.lastEligibilityError) {
+        this.isEligible = false;
+        this.errorMessage = this.lastEligibilityError;
+      }
+      return;
+    }
+    // Step 3: call the backend to validate eligibility.
     this.isChecking = true;
-    this.api.checkAccountEligibility(this.email).pipe(
+    this.api.checkAccountEligibility(normalizedEmail).pipe(
       finalize(() => (this.isChecking = false))
     ).subscribe({
       next: (res) => {
         this.isEligible = !!res?.eligible;
+        this.lastEligibilityEmail = normalizedEmail;
+        this.lastEligibilityCheckedAt = Date.now();
+        this.lastEligibilityResult = res;
+        this.lastEligibilityError = '';
         if (this.isEligible) {
           this.eligibilityMessage = 'Eligible to create an account.';
           this.errorMessage = '';
@@ -113,7 +141,11 @@ export class CreateAccountPageComponent {
       },
       error: (err) => {
         this.isEligible = false;
-        this.errorMessage = err?.error?.message || 'Unable to verify eligibility.';
+        this.lastEligibilityEmail = normalizedEmail;
+        this.lastEligibilityCheckedAt = Date.now();
+        this.lastEligibilityResult = { eligible: false };
+        this.lastEligibilityError = err?.error?.message || 'Unable to verify eligibility.';
+        this.errorMessage = this.lastEligibilityError;
       }
     });
   }

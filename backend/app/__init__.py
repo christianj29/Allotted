@@ -16,11 +16,13 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    # Allow the frontend to call the API during local development.
     CORS(app, origins=app.config["CORS_ORIGINS"], supports_credentials=True)
     db.init_app(app)
 
     @app.get("/api/health")
     def health_check():
+        # Simple liveness probe used by local tooling.
         return jsonify({"status": "ok"})
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -32,6 +34,7 @@ def create_app() -> Flask:
 
     with app.app_context():
         db.create_all()
+        # Seed demo data only for empty dev databases.
         seed_database()
 
     return app

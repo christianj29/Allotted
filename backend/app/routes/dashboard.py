@@ -25,10 +25,12 @@ def summary():
             "compliance": {
                 "computers": {
                     "compliant": compliant_computers,
+                    # Guard against negative counts if data changes mid-request.
                     "nonCompliant": max(computers - compliant_computers, 0),
                 },
                 "devices": {
                     "compliant": compliant_devices,
+                    # Guard against negative counts if data changes mid-request.
                     "nonCompliant": max(devices - compliant_devices, 0),
                 },
             },

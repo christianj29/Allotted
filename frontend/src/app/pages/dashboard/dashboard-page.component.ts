@@ -151,7 +151,7 @@ export class DashboardPageComponent implements OnInit {
 
   private getWelcomeName(): string {
     // Use the logged-in user to personalize the greeting.
-    const rawUser = localStorage.getItem('authUser');
+    const rawUser = localStorage.getItem('sessionUser');
     if (!rawUser) return '';
     try {
       const user = JSON.parse(rawUser) as { fullName?: string; username?: string; email?: string };

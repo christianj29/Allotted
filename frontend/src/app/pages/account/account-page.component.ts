@@ -85,9 +85,24 @@ import { catchError, finalize, of } from 'rxjs';
           <span class="label">Serial Number</span>
           <span class="value">{{ primaryDevice?.serialNumber || '-' }}</span>
         </div>
-        <button class="password-toggle" type="button" (click)="showPasswordForm = true">
-          Update Password
-        </button>
+        <div class="action-row">
+          <div class="actions left">
+            <button class="password-toggle" type="button" (click)="showPasswordForm = true">
+              Update Password
+            </button>
+            <button *ngIf="!isEditing" type="button" (click)="startEdit()">Edit</button>
+            <button *ngIf="!isEditing" type="button" class="danger" (click)="promptDeactivate()">
+              Deactivate my account
+            </button>
+            <button *ngIf="isEditing" type="button" (click)="saveEdit()" [disabled]="isSaving">Save</button>
+            <button *ngIf="isEditing" type="button" class="ghost" (click)="cancelEdit()" [disabled]="isSaving">
+              Cancel
+            </button>
+          </div>
+          <div class="actions right">
+            <button *ngIf="!isEditing" type="button" class="ghost logout" (click)="logout()">Log out</button>
+          </div>
+        </div>
         <div class="modal-backdrop" *ngIf="showPasswordForm">
           <div class="modal">
             <form class="password-form" [formGroup]="forgotForm" (ngSubmit)="updatePassword()">
@@ -116,16 +131,6 @@ import { catchError, finalize, of } from 'rxjs';
         </div>
         <p class="message success" *ngIf="successMessage">{{ successMessage }}</p>
         <p class="message error" *ngIf="errorMessage">{{ errorMessage }}</p>
-        <div class="actions">
-          <button *ngIf="!isEditing" type="button" (click)="startEdit()">Edit</button>
-          <button *ngIf="isEditing" type="button" (click)="saveEdit()" [disabled]="isSaving">Save</button>
-          <button *ngIf="isEditing" type="button" class="ghost" (click)="cancelEdit()" [disabled]="isSaving">
-            Cancel
-          </button>
-          <button *ngIf="!isEditing" type="button" class="danger" (click)="promptDeactivate()">
-            Deactivate my account
-          </button>
-        </div>
       </div>
       <div class="modal-backdrop" *ngIf="showDeactivateConfirm">
         <div class="modal">
@@ -216,7 +221,7 @@ export class AccountPageComponent implements OnInit {
     // Load the logged-in user's account details.
     let userId: number | undefined;
     try {
-      const rawUser = localStorage.getItem('authUser');
+      const rawUser = localStorage.getItem('sessionUser');
       const storedUser = rawUser ? JSON.parse(rawUser) : null;
       userId = storedUser?.id;
     } catch {
@@ -337,13 +342,27 @@ export class AccountPageComponent implements OnInit {
       if (res === null) return;
       this.showDeactivateConfirm = false;
       this.showDeactivateSuccess = true;
-      localStorage.removeItem('authUser');
+      localStorage.removeItem('sessionUser');
       localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+      localStorage.removeItem('auth0User');
+      localStorage.removeItem('auth0Token');
       setTimeout(() => {
         this.showDeactivateSuccess = false;
         this.router.navigate(['/login']);
       }, 1200);
     });
+  }
+
+  protected logout(): void {
+    // Clear session storage and return to login.
+    localStorage.removeItem('sessionUser');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    localStorage.removeItem('auth0User');
+    localStorage.removeItem('auth0Token');
+    localStorage.removeItem('pendingLoginEmail');
+    this.router.navigate(['/login']);
   }
 
   protected updatePassword(): void {

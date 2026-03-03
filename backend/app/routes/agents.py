@@ -18,6 +18,7 @@ _agent_commands: Dict[str, List[dict]] = {}
 @agents_bp.post("/register")
 def register_agent():
     payload = request.get_json(silent=True) or {}
+    # Normalize optional strings and trim inputs early.
     agent_id = (payload.get("agentId") or "").strip()
     name = (payload.get("name") or "").strip()
     model = (payload.get("model") or "").strip()
@@ -33,6 +34,7 @@ def register_agent():
 
     computer = Computer.query.filter_by(serial_number=serial_number).first()
     if computer:
+        # Treat re-registrations as updates for the same machine.
         computer.name = name
         computer.model = model
         computer.os_version = os_version
@@ -75,6 +77,7 @@ def create_command(agent_id: str):
         "type": command_type,
         "payload": command_payload,
         "status": "queued",
+        # Unix epoch seconds keep payloads simple for the demo agent.
         "createdAt": int(time.time()),
     }
     _agent_commands.setdefault(agent_id, []).append(command)
@@ -87,6 +90,7 @@ def get_next_command(agent_id: str):
     if not queue:
         return jsonify({"command": None}), 200
 
+    # FIFO dispatch to preserve enqueue order.
     command = queue.pop(0)
     command["status"] = "dispatched"
     return jsonify({"command": command}), 200

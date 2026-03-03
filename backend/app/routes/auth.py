@@ -1,5 +1,6 @@
 import re
 from flask import Blueprint, jsonify, request
+import time
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..models import User
@@ -8,7 +9,13 @@ from ..extensions import db
 
 auth_bp = Blueprint("auth", __name__)
 
+# Short-lived cache to speed up repeated eligibility checks for the same email.
+# This reduces DB lookups during account creation when users retry or double-click.
+_ELIGIBILITY_CACHE_TTL_SECONDS = 60
+_eligibility_cache: dict[str, tuple[float, dict, int]] = {}
+
 def _validate_password(password: str) -> bool:
+    # Enforce baseline password strength for account creation.
     if len(password) < 8:
         return False
     if not re.search(r"[A-Z]", password):
@@ -20,6 +27,7 @@ def _validate_password(password: str) -> bool:
     return True
 
 def _is_it_department(user: User) -> bool:
+    # Only IT department users are eligible to create accounts.
     return (user.department or "").strip().lower() == "it"
 
 @auth_bp.post("/login")
@@ -37,6 +45,34 @@ def login():
 
     return jsonify(
         {
+            # Dev-only token to keep the demo flow simple.
+            "token": f"dev-token-{user.id}",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "fullName": user.full_name,
+                "email": user.email,
+                "role": user.role,
+            },
+        }
+    )
+
+
+@auth_bp.post("/auth0-login")
+def auth0_login():
+    payload = request.get_json(silent=True) or {}
+    email = payload.get("email", "").strip().lower()
+
+    if not email:
+        return jsonify({"message": "Email is required."}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"message": "No account found for that email."}), 404
+
+    return jsonify(
+        {
+            # Dev-only token to keep the demo flow simple.
             "token": f"dev-token-{user.id}",
             "user": {
                 "id": user.id,
@@ -78,13 +114,28 @@ def account_eligibility():
     if not email:
         return jsonify({"message": "Email is required."}), 400
 
+    # Return cached result if it's still fresh.
+    cached = _eligibility_cache.get(email)
+    if cached:
+        cached_at, cached_payload, cached_status = cached
+        if time.time() - cached_at < _ELIGIBILITY_CACHE_TTL_SECONDS:
+            return jsonify(cached_payload), cached_status
+        _eligibility_cache.pop(email, None)
+
+    # Single indexed lookup by email; cache the result for quick repeats.
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({"message": "No account found for that email."}), 404
+        payload = {"message": "No account found for that email."}
+        _eligibility_cache[email] = (time.time(), payload, 404)
+        return jsonify(payload), 404
     if not _is_it_department(user):
-        return jsonify({"message": "You do not have access to create an account."}), 403
+        payload = {"message": "You do not have access to create an account."}
+        _eligibility_cache[email] = (time.time(), payload, 403)
+        return jsonify(payload), 403
 
-    return jsonify({"eligible": True, "department": user.department})
+    payload = {"eligible": True, "department": user.department}
+    _eligibility_cache[email] = (time.time(), payload, 200)
+    return jsonify(payload)
 
 
 @auth_bp.post("/create-account")

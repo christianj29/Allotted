@@ -26,6 +26,10 @@ export class ApiService {
     return this.http.post<LoginResponse>(`${this.baseUrl}/auth/login`, { email, password });
   }
 
+  auth0Login(email: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/auth/auth0-login`, { email });
+  }
+
   forgotPassword(email: string, newPassword: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.baseUrl}/auth/forgot-password`, { email, newPassword });
   }

@@ -22,9 +22,29 @@ import { AuthService } from '../../shared/auth.service';
           <a class="secondary" routerLink="/create-account">Create Account</a>
         </div>
 
-        <form *ngIf="!showForgotPassword && showLoginForm" [formGroup]="form" (ngSubmit)="submit()">
-          <input type="email" formControlName="email" placeholder="email" />
-          <input type="password" formControlName="password" placeholder="password" />
+        <form *ngIf="!showForgotPassword && showLoginForm" [formGroup]="form" (ngSubmit)="submit()" autocomplete="off">
+          <input type="email" formControlName="email" placeholder="email" autocomplete="off" />
+          <div class="password-field">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="password"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="showPassword = !showPassword"
+              [attr.aria-pressed]="showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path
+                  d="M12 5c-5 0-9.27 3.11-11 7 1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                />
+              </svg>
+            </button>
+          </div>
           <button type="submit">Continue</button>
         </form>
 
@@ -32,16 +52,63 @@ import { AuthService } from '../../shared/auth.service';
           Forgot password?
         </button>
 
-        <form *ngIf="showForgotPassword" [formGroup]="forgotForm" (ngSubmit)="updatePassword()">
-          <input type="email" formControlName="email" placeholder="account email" />
-          <input type="password" formControlName="newPassword" placeholder="new password" />
-          <input type="password" formControlName="confirmPassword" placeholder="confirm new password" />
+        <form *ngIf="showForgotPassword" [formGroup]="forgotForm" (ngSubmit)="updatePassword()" autocomplete="off">
+          <input type="email" formControlName="email" placeholder="account email" autocomplete="off" />
+          <div class="password-field">
+            <input
+              [type]="showNewPassword ? 'text' : 'password'"
+              formControlName="newPassword"
+              placeholder="new password"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="showNewPassword = !showNewPassword"
+              [attr.aria-pressed]="showNewPassword"
+              [attr.aria-label]="showNewPassword ? 'Hide new password' : 'Show new password'"
+            >
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path
+                  d="M12 5c-5 0-9.27 3.11-11 7 1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="password-field">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="confirm new password"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="showConfirmPassword = !showConfirmPassword"
+              [attr.aria-pressed]="showConfirmPassword"
+              [attr.aria-label]="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'"
+            >
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path
+                  d="M12 5c-5 0-9.27 3.11-11 7 1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                />
+              </svg>
+            </button>
+          </div>
           <button type="submit">Update Password</button>
         </form>
 
         <button *ngIf="showForgotPassword" type="button" class="link" (click)="cancelForgotPassword()">
           Back to login
         </button>
+
+        <div class="modal-overlay" *ngIf="showPasswordChanged">
+          <div class="modal">
+            <h2>Password successfully changed</h2>
+            <p>Redirecting to login...</p>
+          </div>
+        </div>
 
         <p class="message success" *ngIf="successMessage">{{ successMessage }}</p>
         <p class="message error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -53,18 +120,22 @@ import { AuthService } from '../../shared/auth.service';
 export class LoginPageComponent {
   // Primary login form fields and validators.
   protected readonly form = this.fb.group({
-    email: ['cbasuel@email.com', [Validators.required, Validators.email]],
-    password: ['password123', Validators.required]
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
   });
   // Forgot-password form fields and validators.
   protected readonly forgotForm = this.fb.group({
-    email: ['cbasuel@email.com', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]],
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required]
   });
   // UI state toggles and messaging.
   protected showForgotPassword = false;
   protected showLoginForm = false;
+  protected showPassword = false;
+  protected showNewPassword = false;
+  protected showConfirmPassword = false;
+  protected showPasswordChanged = false;
   protected errorMessage = '';
   protected successMessage = '';
   protected isAuth0Loading = false;
@@ -84,10 +155,14 @@ export class LoginPageComponent {
     const { email, password } = this.form.getRawValue();
     this.api.login(email!, password!).subscribe({
       next: (response) => {
-        localStorage.setItem('authUser', JSON.stringify(response.user));
+        localStorage.setItem('sessionUser', JSON.stringify(response.user));
         localStorage.setItem('authToken', response.token);
+        localStorage.removeItem('authUser');
+        localStorage.removeItem('auth0User');
+        localStorage.setItem('pendingLoginEmail', email!);
         this.isAuth0Loading = true;
         this.auth.loginWithRedirect().catch(() => {
+          localStorage.removeItem('pendingLoginEmail');
           this.isAuth0Loading = false;
           this.errorMessage = 'Auth0 login failed. Continuing with local session.';
           this.router.navigate(['/dashboard']);
@@ -114,8 +189,14 @@ export class LoginPageComponent {
     this.api.forgotPassword(email!, newPassword!).subscribe({
       next: (response) => {
         this.successMessage = response.message;
-        this.showForgotPassword = false;
+        this.showPasswordChanged = true;
         this.form.patchValue({ email: email!, password: '' });
+        setTimeout(() => {
+          this.showPasswordChanged = false;
+          this.showForgotPassword = false;
+          this.showLoginForm = true;
+          this.forgotForm.reset();
+        }, 1200);
       },
       error: (error) => {
         this.errorMessage = error?.error?.message || 'Unable to update password.';

@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 
+# Load local environment overrides for development.
 load_dotenv()
 
 
@@ -16,6 +17,7 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
+        # Keep connections healthy in long-running dev servers.
         "pool_pre_ping": True,
         "pool_recycle": 1800,
     }

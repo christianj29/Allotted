@@ -8,6 +8,7 @@ computers_bp = Blueprint("computers", __name__)
 
 
 def _to_dict(computer: Computer):
+    # Align API field names with frontend expectations.
     return {
         "id": computer.id,
         "name": computer.name,
@@ -33,6 +34,7 @@ def list_computers():
 @computers_bp.post("")
 def create_computer():
     payload = request.get_json(silent=True) or {}
+    # Normalize optional strings and trim inputs early.
     name = (payload.get("name") or "").strip()
     model = (payload.get("model") or "").strip()
     os_version = (payload.get("osVersion") or "").strip() or None
@@ -78,6 +80,7 @@ def update_computer(computer_id: int):
     computer = Computer.query.get_or_404(computer_id)
     payload = request.get_json(silent=True) or {}
 
+    # Normalize optional strings and trim inputs early.
     name = (payload.get("name") or "").strip()
     model = (payload.get("model") or "").strip()
     os_version = (payload.get("osVersion") or "").strip() or None

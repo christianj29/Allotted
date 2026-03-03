@@ -39,6 +39,33 @@
   background: #1d4fcc;
   color: #fff;
 }
+.sidebar .logout {
+  margin-top: auto;
+  border: 0;
+  background: #132b62;
+  color: #d8e6ff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.sidebar .logout:hover {
+  background: #1d4fcc;
+  color: #fff;
+}
+.sidebar .logout .icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+}
+.sidebar .logout svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
 .content {
   background: #ffffffcc;
   backdrop-filter: blur(4px);
@@ -81,5 +108,10 @@ h1 {
   }
   .brand {
     margin: 0 16px 0 0;
+  }
+  .sidebar .logout {
+    margin-top: 0;
+    margin-left: auto;
+    white-space: nowrap;
   }
 }

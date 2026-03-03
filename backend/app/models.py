@@ -14,6 +14,7 @@ class User(db.Model):
     department = db.Column(db.String(80), nullable=False, default="General")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Delete child assets when a user is removed.
     devices = db.relationship("Device", back_populates="user", cascade="all, delete")
     computers = db.relationship("Computer", back_populates="user", cascade="all, delete")
 

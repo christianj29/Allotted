@@ -64,10 +64,10 @@ export class AuthService {
   async persistSession(): Promise<void> {
     const [user, token] = await Promise.all([this.getUser(), this.getToken()]);
     if (user) {
-      localStorage.setItem('authUser', JSON.stringify(user));
+      localStorage.setItem('auth0User', JSON.stringify(user));
     }
     if (token) {
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('auth0Token', token);
     }
   }
 }

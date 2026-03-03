@@ -8,6 +8,7 @@ devices_bp = Blueprint("devices", __name__)
 
 
 def _to_dict(device: Device):
+    # Align API field names with frontend expectations.
     return {
         "id": device.id,
         "name": device.name,
@@ -32,6 +33,7 @@ def list_devices():
 @devices_bp.post("")
 def create_device():
     payload = request.get_json(silent=True) or {}
+    # Normalize optional strings and trim inputs early.
     name = (payload.get("name") or "").strip()
     model = (payload.get("model") or "").strip()
     os_version = (payload.get("osVersion") or "").strip() or None
@@ -76,6 +78,7 @@ def create_device():
 def update_device(device_id: int):
     device = Device.query.get_or_404(device_id)
     payload = request.get_json(silent=True) or {}
+    # Normalize optional strings and trim inputs early.
     name = (payload.get("name") or "").strip()
     model = (payload.get("model") or "").strip()
     os_version = (payload.get("osVersion") or "").strip() or None

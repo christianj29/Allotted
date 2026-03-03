@@ -1,3 +1,5 @@
+-- Local development schema for the demo MDM database.
+-- Keep in sync with SQLAlchemy models in backend/app/models.py.
 CREATE DATABASE IF NOT EXISTS allotted_mdm;
 USE allotted_mdm;
 
